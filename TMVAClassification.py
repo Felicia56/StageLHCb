@@ -39,17 +39,19 @@ import os
 
 # --------------------------------------------
 
+# Default settings for command line arguments
+#DEFAULT_OUTFNAME = "TMVA.root"
+DEFAULT_OPTNAME  = ""
+DEFAULT_SIGFNAME = "/data/lhcb/marin/lb2pkgamma/MC/2012/15102203/2hG-S21/radiative2hG_MC2012-Lb2L1520gamma_HighPt-15102203-Py8Sim09dReco14c_S21.root"
+DEFAULT_BKGFNAME = "/data/lhcb/marin/lb2pkgamma/Data/2012/2hG-S21/radiative2hG_R14S21_MagUp_tmp.root"
+DEFAULT_CHANNEL  = "1"
+DEFAULT_TREESIG  = "pkGTupleMC/DecayTree"
+DEFAULT_TREEBKG  = "pkGTuple/DecayTree"
+DEFAULT_METHODS  = "MLP"
+
+
 # Print usage help
 def usage():
-    # Default settings for command line arguments
-    #DEFAULT_OUTFNAME = "TMVA.root"
-    DEFAULT_OPTNAME  = ""
-    DEFAULT_SIGFNAME = "Lb2L0Gamma_presel_sig_mcmatch_LL_presel.root"
-    DEFAULT_BKGFNAME = "Lb2L0Gamma_presel_bkg_LL_presel.root"
-    DEFAULT_CHANNEL  = "LL"
-    DEFAULT_TREESIG  = "Lb2L0GammaTuple/DecayTree"
-    DEFAULT_TREEBKG  = "Lb2L0GammaTuple/DecayTree"
-    DEFAULT_METHODS  = "BDT"
     print " "
     print "Usage: python %s [options]" % sys.argv[0]
     print "  -m | --methods    : gives methods to be run (default: %s)" % DEFAULT_METHODS
@@ -66,13 +68,14 @@ def usage():
     print " "
 
 # Main routine
-def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees="DecayTree,DecayTree", verbose=False):
+def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, verbose=False):#="DecayTree,DecayTree"
     # Print methods
     mlist = methods.replace(' ',',').split(',')
     print "=== TMVAClassification: use method(s)..."
     for m in mlist:
         if m.strip() != '':
             print "=== - <%s>" % m.strip()
+    
     # Define trees
     trees = trees.split(",")
     if len(trees)-trees.count('') != 2:
@@ -81,6 +84,8 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees="Dec
         sys.exit(1)
     treeNameSig = trees[0]
     treeNameBkg = trees[1]
+    #print trees
+
     # Print output file and directory
     outfname = "TMVA_%s_%s.root" %(channel, optname)
     myWeightDirectory = "weights_%s_%s" %(channel, optname)
@@ -106,7 +111,10 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees="Dec
     
     # Import TMVA classes from ROOT
     from ROOT import TMVA
-
+    
+    # Setup TMVA 
+    TMVA.Tools.Instance()
+ 
     # Output file
     outputFile = TFile( outfname, 'RECREATE' )
     
@@ -120,7 +128,7 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees="Dec
     factory.SetVerbose( verbose )
     
     # Load data
-    dataloader = TMVA.DataLoader("dataset_%s" % channel)
+    dataloader = TMVA.DataLoader("dataset")
     
     # If you wish to modify default settings 
     # (please check "src/Config.h" to see all available global options)
@@ -134,34 +142,37 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees="Dec
     print "*** %s" % channel
     print "***"
 
-    if channel == "LL":
-        dataloader.AddVariable( "piminus_PT",                         "P_{T}(#pi^{-})",                                "MeV",  'F' );
-        dataloader.AddVariable( "pplus_PT",                           "P_{T}(p^{+})",                                  "MeV",  'F' );
-        dataloader.AddVariable( "piminus_IPCHI2_OWNPV",               "IP #chi^{2}(#pi^{-})",                         ""    ,  'F' );
-        dataloader.AddVariable( "pplus_IPCHI2_OWNPV",                 "IP #chi^{2}(p^{+})",                             ""  ,  'F' );
-        dataloader.AddVariable( "Lambda_b0_DOCA_12",                  "DOCA(p-#pi)",                              "mm",  'F' );
-        dataloader.AddVariable( "gamma_PT",                           "PT(#gamma)",                              "MeV",  'F' );
-        dataloader.AddVariable( "Lambda0_PT",                         "P_{T}(#Lambda)",                                  "MeV",  'F' );
-        dataloader.AddVariable( "Lambda0_IP_OWNPV",                   "IP(#Lambda)",                             "mm",     'F' );
-        dataloader.AddVariable( "Lambda0_IPCHI2_OWNPV",               "IP#chi^{2}(#Lambda)",                             "",     'F' );
-        dataloader.AddVariable( "Lambda0_FDCHI2_OWNPV",                   "FD #chi^{2}(#Lambda)",                             "",     'F' );
-        dataloader.AddVariable( "Lambda_b0_PT",                               "P_{T}(#Lambda_{b})",                                      "MeV",  'F' );
-        dataloader.AddVariable( "Lambda_b0_MTDOCA",                   "MTDOCA(#Lambda_{b})",                                      "mm",  'F' );
+    if channel == "1":
+        dataloader.AddVariable( "Kminus_PT",                          "P_{T}(K^{-})",                             "MeV", 'F' );
+        dataloader.AddVariable( "pplus_PT",                           "P_{T}(p^{+})",                             "MeV", 'F' );
+        dataloader.AddVariable( "pplus_IPCHI2_OWNPV",                 "IP #chi^{2}(p^{+})",                       ""  ,  'F' );
+        dataloader.AddVariable( "Kminus_IPCHI2_OWNPV",                "IP #chi^{2}(K^{-})",                       ""  ,  'F' );
+        dataloader.AddVariable( "gamma_PT",                           "PT(#gamma)",                               "MeV", 'F' );
+        dataloader.AddVariable( "Lambda_1520_0_PT",                   "P_{T}(#Lambda(1520))",                     "MeV", 'F' );
+        #dataloader.AddVariable( "Lambda_1520_0_IP_OWNPV",             "IP(#Lambda(1520))",                        "mm",  'F' );
+        #dataloader.AddVariable( "Lambda_1520_0_IPCHI2_OWNPV",         "IP#chi^{2}(#Lambda(1520))",               "",    'F' );
+        dataloader.AddVariable( "Lambda_1520_0_FDCHI2_OWNPV",         "FD #chi^{2}(#Lambda(1520))",               "",    'F' );
+        dataloader.AddVariable( "B_PT",                               "P_{T}(#Lambda_{b})",                       "MeV", 'F' );
+        dataloader.AddVariable( "B_FDCHI2_OWNPV",                     "FD #chi^{2}(#Lambda_{b})",                 "",    'F' );
 
-    if channel == "DD":
-        dataloader.AddVariable( "piminus_PT",                         "P_{T}(#pi^{-})",                                "MeV",  'F' );
-        dataloader.AddVariable( "pplus_PT",                           "P_{T}(p^{+})",                                  "MeV",  'F' );
-        dataloader.AddVariable( "piminus_IPCHI2_OWNPV",               "IP #chi^{2}(#pi^{-})",                         ""    ,  'F' );
-        dataloader.AddVariable( "pplus_IPCHI2_OWNPV",                 "IP #chi^{2}(p^{+})",                             ""  ,  'F' );
-        dataloader.AddVariable( "Lambda_b0_DOCA_12",                  "DOCA(p-#pi)",                              "mm",  'F' );
-        dataloader.AddVariable( "gamma_PT",                           "PT(#gamma)",                              "MeV",  'F' );
-        dataloader.AddVariable( "Lambda0_PT",                         "P_{T}(#Lambda)",                                  "MeV",  'F' );
-        dataloader.AddVariable( "Lambda0_IP_OWNPV",                   "IP(#Lambda)",                             "mm",     'F' );
-        #dataloader.AddVariable( "Lambda0_IPCHI2_OWNPV",               "IP#chi^{2}(#Lambda)",                             "",     'F' );
-        dataloader.AddVariable( "Lambda0_FD_OWNPV",                   "FD (#Lambda)",                             "mm",     'F' );
-        dataloader.AddVariable( "Lambda_b0_PT",                               "P_{T}(#Lambda_{b})",                                      "MeV",  'F' );
-        dataloader.AddVariable( "Lambda_b0_MTDOCA",                   "MTDOCA(#Lambda_{b})",                                      "mm",  'F' );
+    if channel == "2":
+        dataloader.AddVariable( "Kminus_PT",                          "P_{T}(K^{-})",                             "MeV", 'F' );
+        dataloader.AddVariable( "pplus_PT",                           "P_{T}(p^{+})",                             "MeV", 'F' );
+        dataloader.AddVariable( "pplus_IPCHI2_OWNPV",                 "IP #chi^{2}(p^{+})",                       ""  ,  'F' );
+        dataloader.AddVariable( "Kminus_IPCHI2_OWNPV",                "IP #chi^{2}(K^{-})",                       ""  ,  'F' );
+        dataloader.AddVariable( "gamma_PT",                           "PT(#gamma)",                               "MeV", 'F' );
+        dataloader.AddVariable( "Lambda_1520_0_PT",                   "P_{T}(#Lambda(1520))",                     "MeV", 'F' );
+        dataloader.AddVariable( "Lambda_1520_0_IP_OWNPV",             "IP(#Lambda(1520))",                        "mm",  'F' );
+        #dataloader.AddVariable( "Lambda_1520_0_IPCHI2_OWNPV",         "IP#chi^{2}(#Lambda(1520))",               "",    'F' );
+        dataloader.AddVariable( "Lambda_1520_0_FDCHI2_OWNPV",         "FD #chi^{2}(#Lambda(1520))",               "",    'F' );
+        dataloader.AddVariable( "B_PT",                               "P_{T}(#Lambda_{b})",                       "MeV", 'F' );
+        dataloader.AddVariable( "B_FDCHI2_OWNPV",                     "FD #chi^{2}(#Lambda_{b})",                 "",    'F' );
 
+    
+    # Add Spectator Variables: not used for Training but written in final TestTree
+    dataloader.AddSpectator( "B_M",                                   "M(#Lambda_{b})",                           "MeV");
+    dataloader.AddSpectator( "Lambda_1520_0_M",                       "M(#Lambda(1520))",                         "MeV");                    
+        
     # Read input data
     if gSystem.AccessPathName( sigfname ) != 0: print "Can not find %s" % sigfname
     if gSystem.AccessPathName( bkgfname ) != 0: print "Can not find %s" % bkgfname
@@ -208,14 +219,18 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees="Dec
 
     # Apply additional cuts on the signal and background sample. 
     # example for cut: mycut = TCut( "abs(var1)<0.5 && abs(var2-0.5)<1" )
-    mycutSig = TCut( "" ) 
-    mycutBkg = TCut( "" ) 
-    
+
+    mycutSig = TCut( "pplus_ProbNNp>0.2 && Kminus_ProbNNk>0.2 && B_PT>4000 && Lambda_1520_0_PT>1500 && gamma_PT>3000 && pplus_PT>1000 && B_FDCHI2_OWNPV>100 && pplus_IPCHI2_OWNPV>50 && Kminus_IPCHI2_OWNPV>40")# && B_BKGCAT==0" ) 
+    #print(sigfname + str( mycutSig ) + treeNameSig)
+
+    mycutBkg = TCut( "pplus_ProbNNp>0.2 && Kminus_ProbNNk>0.2 && B_PT>4000 && Lambda_1520_0_PT>1500 && gamma_PT>3000 && pplus_PT>1000 && B_FDCHI2_OWNPV>100 && pplus_IPCHI2_OWNPV>50 && Kminus_IPCHI2_OWNPV>40 && (B_M>6120 || B_M<5120)" ) 
+    #print(bkgfname + str( mycutBkg ) + treeNameBkg)
+
     # Here, the relevant variables are copied over in new, slim trees that are
     # used for TMVA training and testing
     # "SplitMode=Random" means that the input events are randomly shuffled before
     # splitting them into training and test samples
-    dataloader.PrepareTrainingAndTestTree( mycutSig, mycutBkg,
+    dataloader.PrepareTrainingAndTestTree(mycutSig,mycutBkg,
                                         "nTrain_Signal=0:nTrain_Background=0:SplitMode=Random:NormMode=NumEvents:!V" )
 
     # --------------------------------------------------------------------------------------------------
@@ -432,15 +447,6 @@ if __name__ == "__main__":
         print "ERROR: unknown options in argument %s" % sys.argv[1:]
         usage()
         sys.exit(1)
-
-    DEFAULT_OPTNAME  = "BDTOutput"
-    DEFAULT_SIGFNAME = "Lb2L0Gamma_presel_sig_mcmatch_LL_presel.root"
-    DEFAULT_BKGFNAME = "Lb2L0Gamma_presel_bkg_LL_presel.root"
-    DEFAULT_CHANNEL  = "LL"
-    DEFAULT_TREESIG  = "Lb2L0GammaTuple/DecayTree"
-    DEFAULT_TREEBKG  = "Lb2L0GammaTuple/DecayTree"
-    DEFAULT_METHODS  = "BDT"
-
     sigfname    = DEFAULT_SIGFNAME
     bkgfname    = DEFAULT_BKGFNAME
     treeNameSig = DEFAULT_TREESIG
@@ -468,6 +474,6 @@ if __name__ == "__main__":
         elif o in ("-v", "--verbose"):
             verbose = True
 
-    TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees=trees, verbose=False)
+    TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees="pkGTupleMC/DecayTree,pkGTuple/DecayTree", verbose=False)
 
 #EOF
