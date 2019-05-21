@@ -42,12 +42,13 @@ import os
 # Default settings for command line arguments
 #DEFAULT_OUTFNAME = "TMVA.root"
 DEFAULT_OPTNAME  = ""
-DEFAULT_SIGFNAME = "/data/lhcb/marin/lb2pkgamma/MC/2012/15102203/2hG-S21/radiative2hG_MC2012-Lb2L1520gamma_HighPt-15102203-Py8Sim09dReco14c_S21.root"
+DEFAULT_SIGFNAME = "/exp/LHCb/volle/MCsignal.root"
+#"/data/lhcb/marin/lb2pkgamma/MC/2012/15102203/2hG-S21/radiative2hG_MC2012-Lb2L1520gamma_HighPt-15102203-Py8Sim09dReco14c_S21.root"
 DEFAULT_BKGFNAME = "/data/lhcb/marin/lb2pkgamma/Data/2012/2hG-S21/radiative2hG_R14S21_MagUp_tmp.root"
 DEFAULT_CHANNEL  = "1"
-DEFAULT_TREESIG  = "pkGTupleMC/DecayTree"
+DEFAULT_TREESIG  = "DecayTree"#"pkGTupleMC/DecayTree"
 DEFAULT_TREEBKG  = "pkGTuple/DecayTree"
-DEFAULT_METHODS  = "MLP"
+DEFAULT_METHODS  = "BDTG MLP"
 
 
 # Print usage help
@@ -143,16 +144,22 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
     print "***"
 
     if channel == "1":
-        dataloader.AddVariable( "Kminus_PT",                          "P_{T}(K^{-})",                             "MeV", 'F' );
+        dataloader.AddVariable( "pplus_ProbNNp",                      "Prob(p^{+})",                             "",     'F' );
+        dataloader.AddVariable( "Kminus_ProbNNk",                     "Prob(K^{-})",                             "",     'F' );
+
         dataloader.AddVariable( "pplus_PT",                           "P_{T}(p^{+})",                             "MeV", 'F' );
+        dataloader.AddVariable( "Kminus_PT",                          "P_{T}(K^{-})",                             "MeV", 'F' );
+        dataloader.AddVariable( "gamma_PT",                           "P_{T}(#gamma)",                               "MeV", 'F' );
+        dataloader.AddVariable( "Lambda_1520_0_PT",                   "P_{T}(#Lambda(1520))",                     "MeV", 'F' );
+        dataloader.AddVariable( "B_PT",                               "P_{T}(#Lambda_{b})",                       "MeV", 'F' );
+
         dataloader.AddVariable( "pplus_IPCHI2_OWNPV",                 "IP #chi^{2}(p^{+})",                       ""  ,  'F' );
         dataloader.AddVariable( "Kminus_IPCHI2_OWNPV",                "IP #chi^{2}(K^{-})",                       ""  ,  'F' );
-        dataloader.AddVariable( "gamma_PT",                           "PT(#gamma)",                               "MeV", 'F' );
-        dataloader.AddVariable( "Lambda_1520_0_PT",                   "P_{T}(#Lambda(1520))",                     "MeV", 'F' );
+        #dataloader.AddVariable( "gamma_IPCHI2_OWNPV",                 "IP #chi^{2}(#gamma)",                       ""  ,  'F' );
         #dataloader.AddVariable( "Lambda_1520_0_IP_OWNPV",             "IP(#Lambda(1520))",                        "mm",  'F' );
         #dataloader.AddVariable( "Lambda_1520_0_IPCHI2_OWNPV",         "IP#chi^{2}(#Lambda(1520))",               "",    'F' );
+
         dataloader.AddVariable( "Lambda_1520_0_FDCHI2_OWNPV",         "FD #chi^{2}(#Lambda(1520))",               "",    'F' );
-        dataloader.AddVariable( "B_PT",                               "P_{T}(#Lambda_{b})",                       "MeV", 'F' );
         dataloader.AddVariable( "B_FDCHI2_OWNPV",                     "FD #chi^{2}(#Lambda_{b})",                 "",    'F' );
 
     if channel == "2":
@@ -220,7 +227,7 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
     # Apply additional cuts on the signal and background sample. 
     # example for cut: mycut = TCut( "abs(var1)<0.5 && abs(var2-0.5)<1" )
 
-    mycutSig = TCut( "pplus_ProbNNp>0.2 && Kminus_ProbNNk>0.2 && B_PT>4000 && Lambda_1520_0_PT>1500 && gamma_PT>3000 && pplus_PT>1000 && B_FDCHI2_OWNPV>100 && pplus_IPCHI2_OWNPV>50 && Kminus_IPCHI2_OWNPV>40")# && B_BKGCAT==0" ) 
+    mycutSig = TCut( "pplus_ProbNNp>0.2 && Kminus_ProbNNk>0.2 && B_PT>4000 && Lambda_1520_0_PT>1500 && gamma_PT>3000 && pplus_PT>1000 && B_FDCHI2_OWNPV>100 && pplus_IPCHI2_OWNPV>50 && Kminus_IPCHI2_OWNPV>40")# B_BKGCAT==0 directly applied in root sample 
     #print(sigfname + str( mycutSig ) + treeNameSig)
 
     mycutBkg = TCut( "pplus_ProbNNp>0.2 && Kminus_ProbNNk>0.2 && B_PT>4000 && Lambda_1520_0_PT>1500 && gamma_PT>3000 && pplus_PT>1000 && B_FDCHI2_OWNPV>100 && pplus_IPCHI2_OWNPV>50 && Kminus_IPCHI2_OWNPV>40 && (B_M>6120 || B_M<5120)" ) 
@@ -389,7 +396,7 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
     # Boosted Decision Trees
     if "BDTG" in mlist:
         factory.BookMethod( dataloader, TMVA.Types.kBDT, "BDTG",
-                            "!H:!V:NTrees=1000:BoostType=Grad:Shrinkage=0.30:UseBaggedGrad:GradBaggingFraction=0.6:SeparationType=GiniIndex:nCuts=20:NNodesMax=5" )
+                            "H:!V:NTrees=1000:BoostType=Grad:Shrinkage=0.30:UseBaggedGrad:GradBaggingFraction=0.6:SeparationType=GiniIndex:nCuts=20:NNodesMax=5" )
 
     if "BDT" in mlist:
         factory.BookMethod( dataloader, TMVA.Types.kBDT, "BDT",
@@ -413,8 +420,10 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
     # ---- Now you can tell the factory to train, test, and evaluate the MVAs. 
 
     # Train MVAs
+    print("FLAG 0")
     factory.TrainAllMethods()
-    
+    print("FLAG 1")
+
     # Test MVAs
     factory.TestAllMethods()
     
@@ -474,6 +483,6 @@ if __name__ == "__main__":
         elif o in ("-v", "--verbose"):
             verbose = True
 
-    TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees="pkGTupleMC/DecayTree,pkGTuple/DecayTree", verbose=False)
+    TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees="DecayTree,pkGTuple/DecayTree", verbose=False)
 
 #EOF
