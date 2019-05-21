@@ -226,7 +226,6 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
 
     # Apply additional cuts on the signal and background sample. 
     # example for cut: mycut = TCut( "abs(var1)<0.5 && abs(var2-0.5)<1" )
-
     mycutSig = TCut( "pplus_ProbNNp>0.2 && Kminus_ProbNNk>0.2 && B_PT>4000 && Lambda_1520_0_PT>1500 && gamma_PT>3000 && pplus_PT>1000 && B_FDCHI2_OWNPV>100 && pplus_IPCHI2_OWNPV>50 && Kminus_IPCHI2_OWNPV>40")# B_BKGCAT==0 directly applied in root sample 
     #print(sigfname + str( mycutSig ) + treeNameSig)
 
