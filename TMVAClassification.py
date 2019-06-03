@@ -41,8 +41,8 @@ import os
 
 # Default settings for command line arguments
 #DEFAULT_OUTFNAME = "TMVA.root"
-DEFAULT_OPTNAME  = ""
-DEFAULT_SIGFNAME = "/exp/LHCb/volle/MCsignal.root"
+DEFAULT_OPTNAME  = "SettingsAnaNote"
+DEFAULT_SIGFNAME = "/sps/lhcb/volle/MCsignal.root"
 #"/data/lhcb/marin/lb2pkgamma/MC/2012/15102203/2hG-S21/radiative2hG_MC2012-Lb2L1520gamma_HighPt-15102203-Py8Sim09dReco14c_S21.root"
 DEFAULT_BKGFNAME = "/data/lhcb/marin/lb2pkgamma/Data/2012/2hG-S21/radiative2hG_R14S21_MagUp_tmp.root"
 DEFAULT_CHANNEL  = "1"
@@ -144,23 +144,35 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
     print "***"
 
     if channel == "1":
-        dataloader.AddVariable( "pplus_ProbNNp",                      "Prob(p^{+})",                             "",     'F' );
-        dataloader.AddVariable( "Kminus_ProbNNk",                     "Prob(K^{-})",                             "",     'F' );
+        #dataloader.AddVariable( "pplus_ProbNNp",                      "Prob(p^{+})",                             "",     'F' );
+        #dataloader.AddVariable( "Kminus_ProbNNk",                     "Prob(K^{-})",                             "",     'F' );
 
         dataloader.AddVariable( "pplus_PT",                           "P_{T}(p^{+})",                             "MeV", 'F' );
         dataloader.AddVariable( "Kminus_PT",                          "P_{T}(K^{-})",                             "MeV", 'F' );
-        dataloader.AddVariable( "gamma_PT",                           "P_{T}(#gamma)",                               "MeV", 'F' );
+        dataloader.AddVariable( "gamma_PT",                           "P_{T}(#gamma)",                            "MeV", 'F' );
         dataloader.AddVariable( "Lambda_1520_0_PT",                   "P_{T}(#Lambda(1520))",                     "MeV", 'F' );
         dataloader.AddVariable( "B_PT",                               "P_{T}(#Lambda_{b})",                       "MeV", 'F' );
 
-        dataloader.AddVariable( "pplus_IPCHI2_OWNPV",                 "IP #chi^{2}(p^{+})",                       ""  ,  'F' );
-        dataloader.AddVariable( "Kminus_IPCHI2_OWNPV",                "IP #chi^{2}(K^{-})",                       ""  ,  'F' );
+        dataloader.AddVariable( "beta:=(gamma_P-Kminus_P-pplus_P)/(gamma_P+Kminus_P+pplus_P)","#beta",             "MeV", 'F' );
+        dataloader.AddVariable( "MomCons1:=B_P-gamma_P-Lambda_1520_0_P","P_{tot,1}",                               "MeV", 'F' );
+        dataloader.AddVariable( "MonCons2:=Lambda_1520_0_P-Kminus_P-pplus_P","P_{tot,2}",                          "MeV", 'F' );
+
+        dataloader.AddVariable( "Sum_Kminus_p_eta:=atanh(pplus_PZ/pplus_P)+atanh(Kminus_PZ/Kminus_P)","#eta(K^{-})+#eta(p^{+})","MeV", 'F' );
+        dataloader.AddVariable( "Diff_Kminus_p_eta:=atanh(Kminus_PZ/Kminus_P)-atanh(pplus_PZ/pplus_P)","#eta(K^{-})-#eta(p^{+})","MeV", 'F' );
+
+        dataloader.AddVariable( "pplus_IPCHI2_OWNPV",                 "#chi^{2}_{IP}(p^{+})",                       ""  ,  'F' );
+        dataloader.AddVariable( "Kminus_IPCHI2_OWNPV",                "#chi^{2}_{IP}(K^{-})",                       ""  ,  'F' );
+        dataloader.AddVariable( "B_IPCHI2_OWNPV",                     "#chi^{2}_{IP}(#Lambda_{b})",                 ""  ,  'F' );
         #dataloader.AddVariable( "gamma_IPCHI2_OWNPV",                 "IP #chi^{2}(#gamma)",                       ""  ,  'F' );
         #dataloader.AddVariable( "Lambda_1520_0_IP_OWNPV",             "IP(#Lambda(1520))",                        "mm",  'F' );
         #dataloader.AddVariable( "Lambda_1520_0_IPCHI2_OWNPV",         "IP#chi^{2}(#Lambda(1520))",               "",    'F' );
-
-        dataloader.AddVariable( "Lambda_1520_0_FDCHI2_OWNPV",         "FD #chi^{2}(#Lambda(1520))",               "",    'F' );
-        dataloader.AddVariable( "B_FDCHI2_OWNPV",                     "FD #chi^{2}(#Lambda_{b})",                 "",    'F' );
+        
+        dataloader.AddVariable( "Lambda_1520_0_OWNPV_CHI2",           "#chi^{2}_{vertex}(#Lambda(1520))",           ""  ,  'F' );
+        dataloader.AddVariable( "B_OWNPV_CHI2",                       "#chi^{2}_{vertex}(#Lambda_{b})",             ""  ,  'F' );
+        dataloader.AddVariable( "B_DIRA_OWNPV",                       "DIRA(#Lambda_{b})",                          ""  ,  'F' );
+        
+        #dataloader.AddVariable( "Lambda_1520_0_FDCHI2_OWNPV",         "FD #chi^{2}(#Lambda(1520))",               "",    'F' );
+        dataloader.AddVariable( "B_FDCHI2_OWNPV",                     "#chi^{2}_{FD}(#Lambda_{b})",                 "",    'F' );
 
     if channel == "2":
         dataloader.AddVariable( "Kminus_PT",                          "P_{T}(K^{-})",                             "MeV", 'F' );
@@ -373,7 +385,7 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
 
     # TMVA ANN: MLP (recommended ANN) -- all ANNs in TMVA are Multilayer Perceptrons
     if "MLP" in mlist:
-        factory.BookMethod( dataloader, TMVA.Types.kMLP, "MLP", "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:!UseRegulator" )
+        factory.BookMethod( dataloader, TMVA.Types.kMLP, "MLP", "!H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:!UseRegulator" )
 
     if "MLPBFGS" in mlist:
         factory.BookMethod( dataloader, TMVA.Types.kMLP, "MLPBFGS", "H:!V:NeuronType=tanh:VarTransform=N:NCycles=600:HiddenLayers=N+5:TestRate=5:TrainingMethod=BFGS:!UseRegulator" )
@@ -396,7 +408,8 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
     # Boosted Decision Trees
     if "BDTG" in mlist:
         factory.BookMethod( dataloader, TMVA.Types.kBDT, "BDTG",
-                            "H:!V:NTrees=1000:BoostType=Grad:Shrinkage=0.30:UseBaggedGrad:GradBaggingFraction=0.6:SeparationType=GiniIndex:nCuts=20:NNodesMax=5" )
+                            "!H:!V:NTrees=300:BoostType=Grad:Shrinkage=0.11:UseBaggedGrad:GradBaggingFraction=0.73:SeparationType=GiniIndex:nCuts=17:MaxDepth=4" )#AnaNote
+                            #"!H:!V:NTrees=1000:BoostType=Grad:Shrinkage=0.30:UseBaggedGrad:GradBaggingFraction=0.6:SeparationType=GiniIndex:nCuts=20:NNodesMax=5" )#Old
 
     if "BDT" in mlist:
         factory.BookMethod( dataloader, TMVA.Types.kBDT, "BDT",
