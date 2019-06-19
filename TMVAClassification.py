@@ -51,7 +51,6 @@ DEFAULT_TREEBKG  = "DecayTree" #"pkGTuple/DecayTree"
 DEFAULT_METHODS  = "BDTG"# MLP"
 
 
-
 # Print usage help
 def usage():
     print " "
@@ -455,6 +454,7 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
     # ---- Now you can tell the factory to train, test, and evaluate the MVAs. 
 
     # Train MVAs
+    print("FLAG 0")
     factory.TrainAllMethods()
 
     # Test MVAs

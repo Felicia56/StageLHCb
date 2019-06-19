@@ -11,6 +11,7 @@
 #include "TSystem.h"
 #include "TROOT.h"
 
+
 //________________________________MAIN SCRIPT______________________________
 
 void copytree3() {
@@ -22,6 +23,7 @@ void copytree3() {
    //Create a new file + a clone of old tree in new file
    TFile *newfile = new TFile("/exp/LHCb/volle/Data_RS.root","recreate");
    TTree * treecopy = tD->CopyTree( "pplus_ProbNNp>0.2 && Kminus_ProbNNk>0.2 && B_PT>4000 && Lambda_1520_0_PT>1500 && gamma_PT>3000 && pplus_PT>1000 && B_FDCHI2_OWNPV>100 && pplus_IPCHI2_OWNPV>50 && Kminus_IPCHI2_OWNPV>40 && B_M>6120");
+
    newfile->Write();
    newfile->Close();
    //return 0;
