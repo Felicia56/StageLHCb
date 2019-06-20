@@ -146,10 +146,6 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
     print "***"
     '''
     if channel == "1":
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
         #dataloader.AddVariable( "pplus_ProbNNp",                      "Prob(p^{+})",                             "",     'F' );
         #dataloader.AddVariable( "Kminus_ProbNNk",                     "Prob(K^{-})",                             "",     'F' );
 
@@ -439,6 +435,7 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
                             #"!H:!V:NTrees=300:BoostType=Grad:Shrinkage=0.11:UseBaggedGrad:GradBaggingFraction=0.73:SeparationType=GiniIndex:nCuts=20:MaxDepth=5" )#Settings3
                             "!H:!V:NTrees=300:BoostType=Grad:Shrinkage=0.11:UseBaggedGrad:GradBaggingFraction=0.73:SeparationType=GiniIndex:nCuts=17:MaxDepth=4" )#AnaNote
                             #"!H:!V:NTrees=1000:BoostType=Grad:Shrinkage=0.30:UseBaggedGrad:GradBaggingFraction=0.6:SeparationType=GiniIndex:nCuts=20:NNodesMax=5" )#Old
+
 
     if "BDT" in mlist:
         factory.BookMethod( dataloader, TMVA.Types.kBDT, "BDT",
