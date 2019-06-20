@@ -21,6 +21,7 @@ RooExponential = ROOT.RooExponential
 RooAddPdf      = ROOT.RooAddPdf
 RooExtendPdf   = ROOT.RooExtendPdf
 
+# alle prints auskommentiert -> bei FigureOfMerit kein ewig langer Text
 
 # definition of functions for this script
 def simpleFit(tree, version, cuts, xmin, xmax): #mean, xmin = 6120, xmax = 9000):
@@ -96,7 +97,7 @@ def simpleFit(tree, version, cuts, xmin, xmax): #mean, xmin = 6120, xmax = 9000)
         os.makedirs(newDir)
         
 
-    fnew = ROOT.TFile("{}/BDTG_tfile_{}.root".format(newDir,b),"recreate")
+    fnew = ROOT.TFile("{}/BDTG_BKGfile_{}.root".format(newDir,b),"recreate")
     tnew = tree.CopyTree(cuts)
     fnew.Write()
     
@@ -136,10 +137,10 @@ def simpleFit(tree, version, cuts, xmin, xmax): #mean, xmin = 6120, xmax = 9000)
     #___print results__________________________________________________________
 
 
-    print "{} has been fit to {} with a chi2 = {}".format(model.GetName(),tnew.GetName(), chi2)
-    print "Total number of entries in the data is: {}".format(ds.numEntries())
+#    print "{} has been fit to {} with a chi2 = {}".format(model.GetName(),tnew.GetName(), chi2)
+#    print "Total number of entries in the data is: {}".format(ds.numEntries())
     ###print "Number of sig entries is: {:.0f} +- {:.0f}".format(nsig.getValV(),nsig.getError())
-    print "Fit result bkg is: {:.0f} +- {:.0f} in the full range by fitting the interval [{},{}]".format(nbkg.getValV(),nbkg.getError(),xmin,xmax)
+#    print "Fit result bkg is: {:.0f} +- {:.0f} in the full range by fitting the interval [{},{}]".format(nbkg.getValV(),nbkg.getError(),xmin,xmax)
     
 
     #___compute S/B with error propagation from uncertainties module___________
@@ -155,23 +156,23 @@ def simpleFit(tree, version, cuts, xmin, xmax): #mean, xmin = 6120, xmax = 9000)
     #B_M.setRange("SignalRegion",5120,6120)
     l = RooArgSet(B_M)
 
-    OuterRange_fraction = model.createIntegral(l, RooFit.NormSet(l), RooFit.Range("OuterRange") )
-    print "Outerrange fraction = {}".format(OuterRange_fraction.getVal())
-    Nbkg_outer = nbkg.getVal() * OuterRange_fraction.getVal()
-    print "Nbkg_outer = {}".format(Nbkg_outer)
+#    OuterRange_fraction = model.createIntegral(l, RooFit.NormSet(l), RooFit.Range("OuterRange") )
+#    print "Outerrange fraction = {}".format(OuterRange_fraction.getVal())
+#    Nbkg_outer = nbkg.getVal() * OuterRange_fraction.getVal()
+#    print "Nbkg_outer = {}".format(Nbkg_outer)
 
-    FullRange_fraction = model.createIntegral(l, RooFit.NormSet(l), RooFit.Range("FullRange") )
-    print "Fullrange fraction = {}".format(FullRange_fraction.getVal())
-    Nbkg_full = nbkg.getVal() * FullRange_fraction.getVal()
-    print "Nbkg_full = {}".format(Nbkg_full) #same as nbk -> error on Nbkg scales with nbkg
+#    FullRange_fraction = model.createIntegral(l, RooFit.NormSet(l), RooFit.Range("FullRange") )
+#    print "Fullrange fraction = {}".format(FullRange_fraction.getVal())
+#    Nbkg_full = nbkg.getVal() * FullRange_fraction.getVal()
+#    print "Nbkg_full = {}".format(Nbkg_full) #same as nbk -> error on Nbkg scales with nbkg
 
 
     Nbkg_sig_fraction = model.createIntegral(l, RooFit.NormSet(l), RooFit.Range("SignalRegion") )
     Nbkg_sig_fraction_error = Nbkg_sig_fraction.getPropagatedError(fitResults)
-    print "Fraction of bkg events in the signal region is: {} +/- {}".format(Nbkg_sig_fraction.getVal(),Nbkg_sig_fraction_error)
+#    print "Fraction of bkg events in the signal region is: {} +/- {}".format(Nbkg_sig_fraction.getVal(),Nbkg_sig_fraction_error)
     nbkg_sig = Nbkg_sig_fraction.getVal() * nbkg.getVal() 
     nbkg_sig_error = nbkg_sig * ROOT.TMath.Sqrt( (nbkg.getError()/nbkg.getValV())**2 + (Nbkg_sig_fraction_error/Nbkg_sig_fraction.getVal())**2 ) 
-    print "Number of bkg events in the signal region is: {:.0f} +/- {:.0f}".format(nbkg_sig,nbkg_sig_error)
+#    print "Number of bkg events in the signal region is: {:.0f} +/- {:.0f}".format(nbkg_sig,nbkg_sig_error)
         
     c1.SaveAs("{}/BDTG_cut_{}.eps".format(newDir,b))
     #c1.SaveAs("{}/BDTG_cut_{}.root".format(newDir,b)
