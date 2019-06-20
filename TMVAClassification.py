@@ -52,7 +52,6 @@ DEFAULT_TREEBKG  = "DecayTree" #"pkGTuple/DecayTree"
 DEFAULT_METHODS  = "BDTG"# MLP"
 
 
-
 # Print usage help
 def usage():
     print " "
@@ -146,10 +145,6 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
     print "***"
     '''
     if channel == "1":
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
         #dataloader.AddVariable( "pplus_ProbNNp",                      "Prob(p^{+})",                             "",     'F' );
         #dataloader.AddVariable( "Kminus_ProbNNk",                     "Prob(K^{-})",                             "",     'F' );
 
@@ -179,7 +174,6 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
         
         #dataloader.AddVariable( "Lambda_1520_0_FDCHI2_OWNPV",         "FD #chi^{2}(#Lambda(1520))",               "",    'F' );
         dataloader.AddVariable( "B_FDCHI2_OWNPV",                     "#chi^{2}_{FD}(#Lambda_{b})",                 "",    'F' );
-
     '''
 
     if channel == "2":
@@ -264,6 +258,7 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
 
     # Apply additional cuts on the signal and background sample. 
     # example for cut: mycut = TCut( "abs(var1)<0.5 && abs(var2-0.5)<1" )
+
 
     mycutSig = TCut("") #"pplus_ProbNNp>0.2 && Kminus_ProbNNk>0.2 && B_PT>4000 && Lambda_1520_0_PT>1500 && gamma_PT>3000 && pplus_PT>1000 && B_FDCHI2_OWNPV>100 && pplus_IPCHI2_OWNPV>50 && Kminus_IPCHI2_OWNPV>40")# B_BKGCAT==0 directly applied in root sample 
     #print(sigfname + str( mycutSig ) + treeNameSig)
@@ -439,6 +434,7 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
                             #"!H:!V:NTrees=300:BoostType=Grad:Shrinkage=0.11:UseBaggedGrad:GradBaggingFraction=0.73:SeparationType=GiniIndex:nCuts=20:MaxDepth=5" )#Settings3
                             "!H:!V:NTrees=300:BoostType=Grad:Shrinkage=0.11:UseBaggedGrad:GradBaggingFraction=0.73:SeparationType=GiniIndex:nCuts=17:MaxDepth=4" )#AnaNote
                             #"!H:!V:NTrees=1000:BoostType=Grad:Shrinkage=0.30:UseBaggedGrad:GradBaggingFraction=0.6:SeparationType=GiniIndex:nCuts=20:NNodesMax=5" )#Old
+
 
     if "BDT" in mlist:
         factory.BookMethod( dataloader, TMVA.Types.kBDT, "BDT",
