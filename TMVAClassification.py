@@ -41,6 +41,7 @@ import os
 
 # Default settings for command line arguments
 #DEFAULT_OUTFNAME = "TMVA.root"
+
 DEFAULT_OPTNAME  = "final"#"Ana_BMassFit_PV"#"SettingsAnaNote"#"SettingsOld"
 DEFAULT_SIGFNAME = "/sps/lhcb/volle/MCsignal_2.root"#MCsignal.root"
 #"/data/lhcb/marin/lb2pkgamma/MC/2012/15102203/2hG-S21/radiative2hG_MC2012-Lb2L1520gamma_HighPt-15102203-Py8Sim09dReco14c_S21.root"
@@ -49,6 +50,7 @@ DEFAULT_CHANNEL  = "2"#"1"
 DEFAULT_TREESIG  = "DecayTree" #"pkGTupleMC/DecayTree"
 DEFAULT_TREEBKG  = "DecayTree" #"pkGTuple/DecayTree"
 DEFAULT_METHODS  = "BDTG"# MLP"
+
 
 
 # Print usage help
@@ -144,6 +146,10 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
     print "***"
     '''
     if channel == "1":
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/master
         #dataloader.AddVariable( "pplus_ProbNNp",                      "Prob(p^{+})",                             "",     'F' );
         #dataloader.AddVariable( "Kminus_ProbNNk",                     "Prob(K^{-})",                             "",     'F' );
 
@@ -173,7 +179,9 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
         
         #dataloader.AddVariable( "Lambda_1520_0_FDCHI2_OWNPV",         "FD #chi^{2}(#Lambda(1520))",               "",    'F' );
         dataloader.AddVariable( "B_FDCHI2_OWNPV",                     "#chi^{2}_{FD}(#Lambda_{b})",                 "",    'F' );
+
     '''
+
     if channel == "2":
         dataloader.AddVariable( "pplus_PT",                           "P_{T}(p^{+})",                             "MeV", 'F' );
         dataloader.AddVariable( "Kminus_PT",                          "P_{T}(K^{-})",                             "MeV", 'F' );
