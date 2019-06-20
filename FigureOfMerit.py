@@ -153,12 +153,14 @@ def DrawSignificance(Nbkg, NsigY, Var_Nsig):
     for b in BDTG_val_list:
         x2.append(b)
         print 'b = {}'.format(b)
-        y_val2 = (float(NsigY[b][0])/( float(NsigY[b][0]) + Nbkg[b][0] )-1)*10**9
+        y_val2 = float(NsigY[b][0])/ ROOT.TMath.Sqrt( float(NsigY[b][0]) + Nbkg[b][0] )
         print 'y_val2 = {}'.format(y_val2)
-        df_sur_ds = Nbkg[b][0]/( (float(NsigY[b][0]) + Nbkg[b][0])**2 )
-        df_sur_db = float(NsigY[b][0])/((float(NsigY[b][0]) + Nbkg[b][0])**2)
-        y_val_err2 = ROOT.TMath.Sqrt((df_sur_ds*float(NsigY[b][1]))**2 + (df_sur_db*Nbkg[b][1])**2)*10**9
+        df_sur_ds = (float(NsigY[b][0]) + 2*Nbkg[b][0])/(2* (ROOT.TMath.Sqrt(float(NsigY[b][0]) + Nbkg[b][0]))**3 )
+        df_sur_db = (float(NsigY[b][0]))/(2* (ROOT.TMath.Sqrt(float(NsigY[b][0]) + Nbkg[b][0]))**3 )
+        y_val_err2 = ROOT.TMath.Sqrt((df_sur_ds*float(NsigY[b][1]))**2 + (df_sur_db*Nbkg[b][1])**2)
         print 'y_val_err2 = {}'.format(y_val_err2)
+        print 'Error on signal events = {}'.format(df_sur_ds*float(NsigY[b][1]))
+        print 'Error on bkg events = {}'.format(df_sur_db*Nbkg[b][1])
         y2.append(y_val2)
         ey2.append(y_val_err2)
         b = b+1
@@ -177,7 +179,7 @@ def DrawSignificance(Nbkg, NsigY, Var_Nsig):
     gS.SetLineColor(4)
     gS.Draw()
     gS.GetXaxis().SetTitle("BDTG cut value")
-    gS.GetYaxis().SetTitle("(s/(s+b)-1)*10**9")
+    gS.GetYaxis().SetTitle("s/srt(s+b)")
     cS.Update()
     cS.SaveAs('{}/FigureOfMerit_signif.eps'.format(newDir))
 
