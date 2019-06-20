@@ -27,7 +27,7 @@ t = f.Get("DecayTree")
 fSig = ROOT.TFile("/sps/lhcb/volle/MCsignal_2_BDTG.root")
 tSig = fSig.Get("DecayTree")
 
-BDTG_val_list = [x * 0.1 for x in range(-10,10)]#[-1,-0.8,-0.6,-0.4,-0.2,0,0.2,0.4,0.6,0.8]
+BDTG_val_list = [-1,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]#[x * 0.1 for x in range(-10,10)]
 
 n = len(BDTG_val_list)
 x1 = []
@@ -50,22 +50,25 @@ def GetBackgroundYieldDict(t,version,xmin,xmax):
     if os.path.exists(FileName):
         ftxt = open(FileName,'r')
         Text = ftxt.read()
-        print Textmmmm
-        TextList = Text.split(";")
+        print Text
+        TextList = Text.split("];")
         print TextList
         for s in range(len(TextList)-1):
-            txtlist =[]
-            txtlist = TextList[s].split(" : ")
-            Nbkg.update({txtlist[0] : txtlist[1]})
+            txtlist = []
+            txtlist2 = []
+            txtlist = TextList[s].split(" : [")
+            txtlist2 = txtlist[1].split(", ")
+            txtlist3 = [float(txtlist2[0]),float(txtlist2[1]),float(txtlist2[2])]
+            Nbkg.update({float(txtlist[0]) : txtlist3})
     else:
         ftxt = open(FileName,'w')
         for i in BDTG_val_list:
             CutVal = "BDTG>="+str(i)
             OutputList = []
             ds, model, chi2, Nbkg_SR, Nbkg_SR_error = simpleFit(t, version, CutVal, xmin, xmax)
-            OutputList.append(Nbkg_SR)
-            OutputList.append(Nbkg_SR_error)
-            OutputList.append(chi2)
+            OutputList.append(float(Nbkg_SR))
+            OutputList.append(float(Nbkg_SR_error))
+            OutputList.append(float(chi2))
             ftxt.write('{} : {};'.format(i,OutputList))
             Nbkg.update({i : OutputList})
     ftxt.close()
@@ -74,6 +77,7 @@ def GetBackgroundYieldDict(t,version,xmin,xmax):
 def GetSignalEfficiencyAndYieldDict(fSig,tSig):
     NsigE = {} #for Efficiency calculation
     NsigY = {} #for the calculation of the expected events (yield)
+    Sum_Nsig = 0
     for j in BDTG_val_list:
         SignalYieldList = []
         CutVal = "BDTG>="+str(j) 
@@ -89,25 +93,38 @@ def GetSignalEfficiencyAndYieldDict(fSig,tSig):
        #     fnew.Write()
         
         NsigMC = tSig.GetEntries(CUT)
+        Sum_Nsig = Sum_Nsig + NsigMC
+
+    Var_Nsig = Sum_Nsig/len(BDTG_val_list) #is the error of all MC event numbers
+        
+    for j in BDTG_val_list:
+        SignalYieldList = []
+        CutVal = "BDTG>="+str(j) 
+        CUT = CutVal + " && B_M>5120 && B_M<6120"
+
+        NsigMC = tSig.GetEntries(CUT)
         NsigE.update({j : NsigMC})
         
-        NsigYield = NsigMC * 3*10**(15) * 568*10**(-6) * 2 * 0.17 * 3.39*10**(-5)
-        NsigYield_error = NsigYield * ROOT.TMath.Sqrt( ((0.48*10**(-5))/(3.39*10**(-5)))**2 )
+        #Lumi=3*10**(15);Crosssection-bb=568*10**(-6)*2;f_Lb=0.17;BR=3.39*10**(-5)
+        NsigYield = float(NsigMC) * 3*10**(15) * 568*10**(-6) * 2 * 0.17 * 3.39*10**(-5)
+        NsigYield_error = NsigYield * ROOT.TMath.Sqrt( (0.48/3.39)**2 + (float(Var_Nsig)/NsigMC)**2)
         SignalYieldList.append(NsigYield)
         SignalYieldList.append(NsigYield_error)
         NsigY.update({j : SignalYieldList})
-    return NsigE, NsigY
 
-def DrawPunzi(Nbkg,NsigE):
+    return NsigE, NsigY, Var_Nsig
+
+def DrawPunzi(Nbkg, NsigE, Var_Nsig):
     b = 0
     for b in BDTG_val_list:
         x1.append(b)
-        eff_sig = NsigE[b]/NsigE[-1]
+        eff_sig = float(NsigE[b])/NsigE[-1]
         print 'eff_sig = {}'.format(eff_sig)
         y_val = eff_sig/( 2.5 + ROOT.TMath.Sqrt(Nbkg[b][0]) )
         print 'y_val = {}'.format(y_val)
         dp_sur_db = eff_sig/( ((2.5 + ROOT.TMath.Sqrt(Nbkg[b][0]))**2) * (2*ROOT.TMath.Sqrt(Nbkg[b][0])) )
-        y_val_err = dp_sur_db * Nbkg[b][1]
+        dp_sur_deff = 1/(2.5 + ROOT.TMath.Sqrt(Nbkg[b][0]))
+        y_val_err = y_val*ROOT.TMath.Sqrt( (dp_sur_db * Nbkg[b][1])**2 + (dp_sur_deff * Var_Nsig/NsigE[-1])**2 )
         print 'y_val_err = {}'.format(y_val_err)
         y1.append(y_val)
         ey1.append(y_val_err)
@@ -130,18 +147,17 @@ def DrawPunzi(Nbkg,NsigE):
     gP.GetYaxis().SetTitle("f_{PUNZI}")
     cP.Update()
     cP.SaveAs('{}/FigureOfMerit_punzi.eps'.format(newDir))
-    #return xP, yP, exP, eyP
 
-def DrawSignificance(Nbkg,NsigY):
+def DrawSignificance(Nbkg, NsigY, Var_Nsig):
     b = 0
     for b in BDTG_val_list:
         x2.append(b)
         print 'b = {}'.format(b)
-        y_val2 = NsigY[b][0]/(NsigY[b][0] + Nbkg[b][0])
+        y_val2 = float(NsigY[b][0])/( float(NsigY[b][0]) + Nbkg[b][0] )
         print 'y_val2 = {}'.format(y_val2)
-        df_sur_ds = Nbkg[b][0]/( (NsigY[b][0] + Nbkg[b][0])**2 )
-        df_sur_db = NsigY[b][0]/((NsigY[b][0] + Nbkg[b][0])**2)
-        y_val_err2 = ROOT.TMath.Sqrt((df_sur_ds*NsigY[b][1])**2 + (df_sur_db*Nbkg[b][1])**2)
+        df_sur_ds = Nbkg[b][0]/( (float(NsigY[b][0]) + Nbkg[b][0])**2 )
+        df_sur_db = float(NsigY[b][0])/((float(NsigY[b][0]) + Nbkg[b][0])**2)
+        y_val_err2 = ROOT.TMath.Sqrt((df_sur_ds*float(NsigY[b][1]))**2 + (df_sur_db*Nbkg[b][1])**2)
         print 'y_val_err2 = {}'.format(y_val_err2)
         y2.append(y_val2)
         ey2.append(y_val_err2)
@@ -164,8 +180,6 @@ def DrawSignificance(Nbkg,NsigY):
     gS.GetYaxis().SetTitle("s/(s+b)")
     cS.Update()
     cS.SaveAs('{}/FigureOfMerit_signif.eps'.format(newDir))
-    #return xS, yS, exS, eyS
-
 
 
 
@@ -189,21 +203,21 @@ if __name__ == '__main__':
 
     #Save for all BDTG_cut_values the Number of bkg events, error & chi2 of fit
     Nbkg = GetBackgroundYieldDict(t,args.version,args.xmin,args.xmax) 
-    print "Nbkg = "
-    print Nbkg
+    #print "Nbkg = "
+    #print Nbkg
 
     #Save for all BDTG_cut_values the Number of Signal events & their error
-    NsigE, NsigY =  GetSignalEfficiencyAndYieldDict(fSig,tSig)
-    print "NsigE = "
-    print NsigE
-    print "NsigY = "
-    print NsigY
+    NsigE, NsigY, Var_Nsig =  GetSignalEfficiencyAndYieldDict(fSig,tSig)
+    #print "NsigE = "
+    #print NsigE
+    #print "NsigY = "
+    #print NsigY
     
     #Draw Punzi Figure of merit
-    DrawPunzi(Nbkg,NsigE)
+    DrawPunzi(Nbkg, NsigE, Var_Nsig)
     
     #Draw Significance Figure of merit
-    DrawSignificance(Nbkg,NsigY)
+    DrawSignificance(Nbkg, NsigY, Var_Nsig)
 
 
 
