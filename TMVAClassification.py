@@ -435,6 +435,7 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
                             "!H:!V:NTrees=300:BoostType=Grad:Shrinkage=0.11:UseBaggedGrad:GradBaggingFraction=0.73:SeparationType=GiniIndex:nCuts=17:MaxDepth=4" )#AnaNote
                             #"!H:!V:NTrees=1000:BoostType=Grad:Shrinkage=0.30:UseBaggedGrad:GradBaggingFraction=0.6:SeparationType=GiniIndex:nCuts=20:NNodesMax=5" )#Old
 
+
     if "BDT" in mlist:
         factory.BookMethod( dataloader, TMVA.Types.kBDT, "BDT",
                             "!H:!V:NTrees=850:MinNodeSize=2.5%:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.5:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning" )
