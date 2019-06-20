@@ -130,10 +130,10 @@ def DrawPunzi(Nbkg, NsigE, Var_Nsig):
         ey1.append(y_val_err)
         b = b+1
        
-    xP = array('f',x1)
-    yP = array('f',y1)
-    exP = array('f',ex1)
-    eyP = array('f',ey1)
+    xP = array('d',x1)
+    yP = array('d',y1)
+    exP = array('d',ex1)
+    eyP = array('d',ey1)
 
     cP = ROOT.TCanvas('cP','cP')
     ROOT.gROOT.SetStyle('Plain')
@@ -153,20 +153,20 @@ def DrawSignificance(Nbkg, NsigY, Var_Nsig):
     for b in BDTG_val_list:
         x2.append(b)
         print 'b = {}'.format(b)
-        y_val2 = float(NsigY[b][0])/( float(NsigY[b][0]) + Nbkg[b][0] )
+        y_val2 = (float(NsigY[b][0])/( float(NsigY[b][0]) + Nbkg[b][0] )-1)*10**9
         print 'y_val2 = {}'.format(y_val2)
         df_sur_ds = Nbkg[b][0]/( (float(NsigY[b][0]) + Nbkg[b][0])**2 )
         df_sur_db = float(NsigY[b][0])/((float(NsigY[b][0]) + Nbkg[b][0])**2)
-        y_val_err2 = ROOT.TMath.Sqrt((df_sur_ds*float(NsigY[b][1]))**2 + (df_sur_db*Nbkg[b][1])**2)
+        y_val_err2 = ROOT.TMath.Sqrt((df_sur_ds*float(NsigY[b][1]))**2 + (df_sur_db*Nbkg[b][1])**2)*10**9
         print 'y_val_err2 = {}'.format(y_val_err2)
         y2.append(y_val2)
         ey2.append(y_val_err2)
         b = b+1
        
-    xS = array('f',x2)
-    yS = array('f',y2)
-    exS = array('f',ex2)
-    eyS = array('f',ey2)
+    xS = array('d',x2)
+    yS = array('d',y2)
+    exS = array('d',ex2)
+    eyS = array('d',ey2)
 
     cS = ROOT.TCanvas('cS','cS')
     ROOT.gROOT.SetStyle('Plain')
@@ -177,10 +177,9 @@ def DrawSignificance(Nbkg, NsigY, Var_Nsig):
     gS.SetLineColor(4)
     gS.Draw()
     gS.GetXaxis().SetTitle("BDTG cut value")
-    gS.GetYaxis().SetTitle("s/(s+b)")
+    gS.GetYaxis().SetTitle("(s/(s+b)-1)*10**9")
     cS.Update()
     cS.SaveAs('{}/FigureOfMerit_signif.eps'.format(newDir))
-
 
 
 #____________________________________MAIN_____________________________________

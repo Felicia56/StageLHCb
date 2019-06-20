@@ -261,7 +261,6 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
 
 
     mycutSig = TCut("") #"pplus_ProbNNp>0.2 && Kminus_ProbNNk>0.2 && B_PT>4000 && Lambda_1520_0_PT>1500 && gamma_PT>3000 && pplus_PT>1000 && B_FDCHI2_OWNPV>100 && pplus_IPCHI2_OWNPV>50 && Kminus_IPCHI2_OWNPV>40")# B_BKGCAT==0 directly applied in root sample 
-
     #print(sigfname + str( mycutSig ) + treeNameSig)
 
     mycutBkg = TCut("") #"pplus_ProbNNp>0.2 && Kminus_ProbNNk>0.2 && B_PT>4000 && Lambda_1520_0_PT>1500 && gamma_PT>3000 && pplus_PT>1000 && B_FDCHI2_OWNPV>100 && pplus_IPCHI2_OWNPV>50 && Kminus_IPCHI2_OWNPV>40 && B_M>6120")#(B_M>6120 || B_M<5120)" ) 
@@ -432,16 +431,9 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
     # Boosted Decision Trees
     if "BDTG" in mlist:
         factory.BookMethod( dataloader, TMVA.Types.kBDT, "BDTG",
-<<<<<<< HEAD
                             #"!H:!V:NTrees=300:BoostType=Grad:Shrinkage=0.11:UseBaggedGrad:GradBaggingFraction=0.73:SeparationType=GiniIndex:nCuts=20:MaxDepth=5" )#Settings3
                             "!H:!V:NTrees=300:BoostType=Grad:Shrinkage=0.11:UseBaggedGrad:GradBaggingFraction=0.73:SeparationType=GiniIndex:nCuts=17:MaxDepth=4" )#AnaNote
                             #"!H:!V:NTrees=1000:BoostType=Grad:Shrinkage=0.30:UseBaggedGrad:GradBaggingFraction=0.6:SeparationType=GiniIndex:nCuts=20:NNodesMax=5" )#Old
-=======
-
-                            "!H:!V:NTrees=300:BoostType=Grad:Shrinkage=0.11:UseBaggedGrad:GradBaggingFraction=0.73:SeparationType=GiniIndex:nCuts=17:MaxDepth=4" )#AnaNote
-                            #"!H:!V:NTrees=1000:BoostType=Grad:Shrinkage=0.30:UseBaggedGrad:GradBaggingFraction=0.6:SeparationType=GiniIndex:nCuts=20:NNodesMax=5" )#Old
-
->>>>>>> origin/master
 
     if "BDT" in mlist:
         factory.BookMethod( dataloader, TMVA.Types.kBDT, "BDT",
