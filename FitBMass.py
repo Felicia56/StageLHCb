@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 # =============================================================================
-# @file   simpleFit.py
-# @author C. Marin Benito (carla.marin.benito@cern.ch)
-# @date   22.12.2014
+# @file   FitBMass.py
+# @author Felicia Volle
+# @date   23.07.2019
 # =============================================================================
 """This script fits a simple pdf to a given dataset using RooFit."""
 
 # imports
-import os
+import os,sys
 #from uncertainties import ufloat
 import ROOT
+from ROOT import kTRUE
 
 RooFit         = ROOT.RooFit
 RooRealVar     = ROOT.RooRealVar
@@ -21,10 +22,14 @@ RooExponential = ROOT.RooExponential
 RooAddPdf      = ROOT.RooAddPdf
 RooExtendPdf   = ROOT.RooExtendPdf
 
+name = "BifurcatedCB.cxx"
+ROOT.gSystem.CompileMacro(name, 'k')
+ROOT.gSystem.Load(name.replace('.c', '_c'))
+
 # alle prints auskommentiert -> bei FigureOfMerit kein ewig langer Text
 
 # definition of functions for this script
-def simpleFit(tree, version, cuts,meanV, xmini, xmin, xmid, xmax): #mean, xmin = 6120, xmax = 9000):
+def FitBMassSigAndBkg(tree, treeSig, version, cuts,meanV, xmini, xmin, xmid, xmax): #mean, xmin = 6120, xmax = 9000):
     """
     This function fits the "B_M" variable of a given TTree
     with a model formed by a Gaussian and an exponential pdf.
@@ -48,46 +53,46 @@ def simpleFit(tree, version, cuts,meanV, xmini, xmin, xmid, xmax): #mean, xmin =
     maximum value of the B_M range to be fitted. Default: 7000
     """
     
-    #___define variables and pdfs______________________________________________
- 
+    #___define variables and pdfs_______________________________________________
+
+
     if xmini > 0:
-        B_M = RooRealVar("B_M","B_M", 3620, 7120)
+        B_M = RooRealVar("B_M","B_M", xmini, xmax)
         B_M.setRange("SignalRegion",xmin,xmid)
         B_M.setRange("FullRange", xmini, xmax)
     else:
-        B_M = RooRealVar("B_M","B_M", xmin, 7120)
+        B_M = RooRealVar("B_M","B_M", xmin, xmax)
         B_M.setRange("SignalRegion",xmin,xmid)
         B_M.setRange("FullRange", xmin, xmax)
  
-    mean  = RooRealVar("mean", "mean",  meanV, 5020, 6220)
-    sigma = RooRealVar("sigma", "sigma", 100, 10, 200)
-    gauss = RooGaussian("gauss", "gauss", B_M, mean, sigma)
-    
-    tau = RooRealVar("tau", "tau", -0.01, -0.01, 0.)
+    #mean  = RooRealVar("mean", "mean",  meanV, 5020, 6220)
+    #sigma = RooRealVar("sigma", "sigma", 100, 0, 200)
+    #gauss = RooGaussian("gauss", "gauss", B_M, mean, sigma)
+
+    # Gaussian core
+    mean  = RooRealVar("mean", "mean",  meanV, 5020, 6220)#, PlotLabel="#mu")
+    sigma = RooRealVar("sigma", "sigma", 100, 1, 200)#, PlotLabel="#sigma")
+    # Low tail
+    alphaL= RooRealVar("alphaL", "alphaL", 2, 0, 10)#, PlotLabel="#alpha_{L}")
+    nL = RooRealVar("nL", "nL", 5, 0, 10)#, PlotLabel="n_{L}")
+    # High tail
+    alphaH = RooRealVar("alphaH", "alphaH", 2, 0, 10)#, PlotLabel="#alpha_{R}")
+    nH = RooRealVar("nH", "nH", 5, 0, 15)#, PlotLabel="n_{R}")
+
+    SignalModel = ROOT.BifurcatedCB("SignalModel", "SignalModel", B_M, mean, sigma, alphaL, nL, alphaH, nH)
+
+
+    # Bkg - exponential
+    tau = RooRealVar("tau", "tau", -0.0033, -0.1, 0.)
     exp = RooExponential("exp", "exp", B_M, tau)
 
     
     #___define coefficiencts___________________________________________________
 
 
-    nsig = RooRealVar("nsig", "nsig", 18000, 0, 50000)#value, MinValue, MaxValue
-    nbkg = RooRealVar("nbkg", "nbkg", 10100, 0, 50000)
-    
-
-    #___build model____________________________________________________________
-
-
-    suma = RooArgList()
-    coeff = RooArgList()
-    
-    suma.add(gauss)
-    suma.add(exp)
-    
-    coeff.add(nsig)
-    coeff.add(nbkg)
-    
-    model = RooAddPdf("model", "model", suma, coeff)
-
+    nsig = RooRealVar("nsig", "nsig", 10000, 10, 500000)#value, MinValue, MaxValue
+    nsigMC = RooRealVar("nsig", "nsig", 10000, 10, 500000)#value, MinValue, MaxValue
+    nbkg = RooRealVar("nbkg", "nbkg", 4241, 0, 500000)
     
     #___define dataset________________________________________________________
 
@@ -105,6 +110,58 @@ def simpleFit(tree, version, cuts,meanV, xmini, xmin, xmid, xmax): #mean, xmin =
     fnew.Write()
     
     ds = RooDataSet("data", "dataset with x", tnew, RooArgSet(B_M))
+
+    fnewMC = ROOT.TFile("{}/BDTG_MCfile_{}.root".format(newDir,b),"recreate")
+    tnewMC = treeSig.CopyTree(cuts)
+    fnewMC.Write()
+    
+    dsMC = RooDataSet("data", "dataset with x", tnewMC, RooArgSet(B_M))
+
+    
+    #___MC fit and fixing tails_________________________________________________
+
+    SigModel = RooAddPdf("SigModel","SigModel",RooArgList(SignalModel),RooArgList(nsigMC))
+
+    c0 = ROOT.TCanvas("c0","c0")
+    
+    massFrameMC = B_M.frame(xmini,xmax,100)
+    massFrameMC.SetTitle("MC fit for BDTG variable larger or equal to {}".format(b))
+    dsMC.plotOn(massFrameMC)
+    
+    fitResultsMC = SigModel.fitTo(dsMC, RooFit.Range("FullRange"), RooFit.Save())#fits model to B_M by using LS and RS
+
+    SigModel.plotOn(massFrameMC, RooFit.FillColor(4), RooFit.VisualizeError(fitResultsMC, 1), RooFit.Name("curve_model"))
+
+    SigModel.paramOn(massFrameMC, RooFit.Layout(0.59,0.97,0.92), RooFit.AutoPrecision(1) ) #RooFit.Parameters( RooArgSet(tau) ) ) #RooFit.Label("Fit results")
+
+    massFrameMC.Draw()
+
+    c0.SaveAs("{}/MCfit_BDTG_cut_{}.pdf".format(newDir,b))
+    c0.SaveAs("{}/MCfit_BDTG_cut_{}.png".format(newDir,b))
+    #c0.SaveAs("{}/MCfit_BDTG_cut_{}.root".format(newDir,b)
+
+
+    alphaL.setConstant(kTRUE)
+    nL.setConstant(kTRUE)
+
+    alphaH.setConstant(kTRUE)
+    nH.setConstant(kTRUE)
+
+
+    #___build model____________________________________________________________
+
+
+    suma = RooArgList()
+    coeff = RooArgList()
+    
+    #suma.add(gauss)
+    suma.add(SignalModel)
+    suma.add(exp)
+    
+    coeff.add(nsig)
+    coeff.add(nbkg)
+    
+    model = RooAddPdf("model", "model", suma, coeff)
 
     
     #___plot dataset and fit__________________________________________________
@@ -182,8 +239,28 @@ def simpleFit(tree, version, cuts,meanV, xmini, xmin, xmid, xmax): #mean, xmin =
     signif_err = signif * ROOT.TMath.Sqrt( (nbkg_sig_error/nbkg_sig)**2 + (nsig.getError()/nsig.getValV())**2 )
     print "S/B = {:.2f} +/- {:.2f}".format(signif, signif_err)
   
-        
-    return ds, model, chi2, nbkg_sig, nbkg_sig_error
+    #_____splot_____________________________________________________________
+
+    print "Starting the splot analysis"
+    sData = ROOT.RooStats.SPlot("sData","sData", ds, model, coeff)
+    print "Finished to create sData"
+    
+    
+    #Enable to export RooDataset as a TTree
+    ROOT.RooDataSet.setDefaultStorageType(ROOT.RooAbsData.Tree)
+
+    sFile = ROOT.TFile("sData.root","RECREATE")
+    sFile.cd()
+    
+    sTree = ROOT.RooStats.GetAsTTree('sTree','sTree',sData.GetSDataSet())
+    sTree.Print()
+
+    #Go back to default storage type
+    ROOT.RooDataSet.setDefaultStorageType(ROOT.RooAbsData.Vector)
+    sTree.Write()
+    sFile.Close()
+
+    return ds, model #nsig, nbkg_sig, nbkg_sig_error, nbkg_sig2, nbkg_sig_error2
 
 
 #______MAIN FUNCTION___________________________________________________________
@@ -196,12 +273,12 @@ if __name__=="__main__":
     #parser.add_argument("-t", "--tree", default="DecayTree", action="store", type=str)
     #(xmini)______FIT______(xmin)______SIGNAL______(xmid)_______FIT_______(xmax)
     parser.add_argument("-a", "--mean", default=5620, action="store", type=float)
-    parser.add_argument("-m", "--xmini", default=4420., action="store", type=float)
+    parser.add_argument("-m", "--xmini", default=4820., action="store", type=float)#4420
     parser.add_argument("-n", "--xmin", default=5120., action="store", type=float)
     parser.add_argument("-d", "--xmid", default=6120., action="store", type=float)
-    parser.add_argument("-x", "--xmax", default=6620., action="store", type=float)
+    parser.add_argument("-x", "--xmax", default=6420., action="store", type=float)#6620
     parser.add_argument("-c", "--cuts", default="", action="store", type=str)
-    parser.add_argument("-v", "--version", default="v1", action="store", type=str)
+    parser.add_argument("-v", "--version", default="v1_Try2", action="store", type=str)
     args = parser.parse_args()
 
     # sanity check
@@ -210,12 +287,17 @@ if __name__=="__main__":
     #    exit()
 
     # read data
-    f = ROOT.TFile("/sps/lhcb/volle/Data_all_BDTG.root")
+    f = ROOT.TFile("/sps/lhcb/volle/Data_BDTG_Secure.root")
     t = f.Get("DecayTree")
+    fSig = ROOT.TFile("/sps/lhcb/volle/MCsignal_BDTG_Secure.root")
+    tSig = fSig.Get("DecayTree")
+
+    #f = ROOT.TFile("/sps/lhcb/volle/Data_all_BDTG.root")
+    #t = f.Get("DecayTree")
 
     #meanVal = 5620
-    BDTCut = "BDTG>=0.72"
-    ds, model, chi2, Nbkg_SR, Nbkg_SR_error = simpleFit(t, args.version,  BDTCut,args.mean, args.xmini, args.xmin, args.xmid, args.xmax) #args.mean, args.xmin, args.xmax)#ds,model,Plot,chi2
+    BDTCut = "BDTG>=0.92" #0.72 #0.92
+    ds, model = FitBMassSigAndBkg(t, tSig, args.version,  BDTCut,args.mean, args.xmini, args.xmin, args.xmid, args.xmax) #args.mean, args.xmin, args.xmax)#ds,model,Plot,chi2
     
 
 #EOF

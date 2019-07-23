@@ -264,10 +264,10 @@ if __name__=="__main__":
     #parser.add_argument("-t", "--tree", default="DecayTree", action="store", type=str)
     #(xmini)______FIT______(xmin)______SIGNAL______(xmid)_______FIT_______(xmax)
     parser.add_argument("-a", "--mean", default=5620, action="store", type=float)
-    parser.add_argument("-m", "--xmini", default=4420., action="store", type=float)
+    parser.add_argument("-m", "--xmini", default=4820., action="store", type=float)#4420
     parser.add_argument("-n", "--xmin", default=5120., action="store", type=float)
     parser.add_argument("-d", "--xmid", default=6120., action="store", type=float)
-    parser.add_argument("-x", "--xmax", default=6620., action="store", type=float)
+    parser.add_argument("-x", "--xmax", default=6420., action="store", type=float)#6620
     parser.add_argument("-c", "--cuts", default="", action="store", type=str)
     parser.add_argument("-v", "--version", default="v2", action="store", type=str)
     args = parser.parse_args()
@@ -278,8 +278,13 @@ if __name__=="__main__":
     #    exit()
 
     # read data
-    f = ROOT.TFile("/sps/lhcb/volle/Data_all_BDTG.root")
+    f = ROOT.TFile("/sps/lhcb/volle/Data_BDTG_Secure.root")
     t = f.Get("DecayTree")
+    fSig = ROOT.TFile("/sps/lhcb/volle/MCsignal_BDTG_Secure.root")
+    tSig = fSig.Get("DecayTree")
+
+    #f = ROOT.TFile("/sps/lhcb/volle/Data_all_BDTG.root")
+    #t = f.Get("DecayTree")
 
     #meanVal = 5620
     BDTCut = "BDTG>=0.72"

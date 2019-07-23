@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# @(#)root/tmva $Id: TMVAClassification.py 38475 2011-03-17 10:46:00Z evt $
+# @(#)root/tmva $Id: TMVAClassification.py 38475 2019-07-23 10:46:00Z evt $
 # ------------------------------------------------------------------------------ #
 # Project      : TMVA - a Root-integrated toolkit for multivariate data analysis #
 # Package      : TMVA                                                            #
@@ -42,10 +42,10 @@ import os
 # Default settings for command line arguments
 #DEFAULT_OUTFNAME = "TMVA.root"
 
-DEFAULT_OPTNAME  = "final"#"Ana_BMassFit_PV"#"SettingsAnaNote"#"SettingsOld"
-DEFAULT_SIGFNAME = "/sps/lhcb/volle/MCsignal_2.root"#MCsignal.root"
+DEFAULT_OPTNAME  = "SecurityTest_8_S12"#"Ana_BMassFit_PV"#"SettingsAnaNote"#"SettingsOld"
+DEFAULT_SIGFNAME = "/sps/lhcb/volle/MCsignal_TrigSel.root"#MCsignal.root"
 #"/data/lhcb/marin/lb2pkgamma/MC/2012/15102203/2hG-S21/radiative2hG_MC2012-Lb2L1520gamma_HighPt-15102203-Py8Sim09dReco14c_S21.root"
-DEFAULT_BKGFNAME = "/sps/lhcb/volle/Data_RS.root"#"/data/lhcb/marin/lb2pkgamma/Data/2012/2hG-S21/radiative2hG_R14S21_MagUp_tmp.root"
+DEFAULT_BKGFNAME = "/sps/lhcb/volle/Data_all.root"#"/data/lhcb/marin/lb2pkgamma/Data/2012/2hG-S21/radiative2hG_R14S21_MagUp_tmp.root"
 DEFAULT_CHANNEL  = "2"#"1"
 DEFAULT_TREESIG  = "DecayTree" #"pkGTupleMC/DecayTree"
 DEFAULT_TREEBKG  = "DecayTree" #"pkGTuple/DecayTree"
@@ -180,37 +180,37 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
         dataloader.AddVariable( "pplus_PT",                           "P_{T}(p^{+})",                             "MeV", 'F' );
         dataloader.AddVariable( "Kminus_PT",                          "P_{T}(K^{-})",                             "MeV", 'F' );
         dataloader.AddVariable( "gamma_PT",                           "P_{T}(#gamma)",                            "MeV", 'F' );
-        dataloader.AddVariable( "Lambda_1520_0_PT",                   "P_{T}(#Lambda(1520))",                     "MeV", 'F' );
+        dataloader.AddVariable( "Lambda_1520_0_PT",                   "P_{T}(#Lambda*)",                     "MeV", 'F' );
         dataloader.AddVariable( "B_PT",                               "P_{T}(#Lambda_{b})",                       "MeV", 'F' ); 
 
-        dataloader.AddVariable( "beta:=(-gamma_P+Kminus_P+pplus_P)/(gamma_P+Kminus_P+pplus_P)","#beta",             "MeV", 'F' );
-        dataloader.AddVariable( "MomCons1:=-B_P+gamma_P+Lambda_1520_0_P","P_{tot,1}",                               "MeV", 'F' );
-        dataloader.AddVariable( "MomCons2:=-Lambda_1520_0_P+Kminus_P+pplus_P","P_{tot,2}",                          "MeV", 'F' );
+        dataloader.AddVariable( "beta:=(-gamma_P+Kminus_P+pplus_P)/(gamma_P+Kminus_P+pplus_P)","#beta",             "", 'F' );#BDT learned Mass check1
+        #dataloader.AddVariable( "MomCons1:=-B_P+gamma_P+Lambda_1520_0_P","P_{tot,1}",                               "MeV", 'F' );#BDT learned Mass check1
+        dataloader.AddVariable( "MomCons2:=-Lambda_1520_0_P+Kminus_P+pplus_P","P_{tot,2}",                          "MeV", 'F' );#BDT learned Mass check1
 
-        #dataloader.AddVariable( "Sum_Kminus_p_eta:=atanh(pplus_PZ/pplus_P)+atanh(Kminus_PZ/Kminus_P)","#eta(K^{-})+#eta(p^{+})","MeV", 'F' );#99correlationL_eta
-        dataloader.AddVariable( "Diff_Kminus_p_eta:=atanh(Kminus_PZ/Kminus_P)-atanh(pplus_PZ/pplus_P)","#eta(K^{-})-#eta(p^{+})","MeV", 'F' );
-        dataloader.AddVariable( "Lambda_1520_0_eta:=atanh(Lambda_1520_0_PZ/Lambda_1520_0_P)","#eta(#Lambda(1520))","MeV", 'F' );
-        dataloader.AddVariable( "gamma_eta:=atanh(gamma_PZ/gamma_P)","#eta(#gamma)","MeV", 'F' );
+        #dataloader.AddVariable( "Sum_Kminus_p_eta:=atanh(pplus_PZ/pplus_P)+atanh(Kminus_PZ/Kminus_P)","#eta(K^{-})+#eta(p^{+})","", 'F' );#99correlationL_eta
+        dataloader.AddVariable( "Diff_Kminus_p_eta:=atanh(Kminus_PZ/Kminus_P)-atanh(pplus_PZ/pplus_P)","#eta(K^{-})-#eta(p^{+})","", 'F' );
+        dataloader.AddVariable( "Lambda_1520_0_eta:=atanh(Lambda_1520_0_PZ/Lambda_1520_0_P)","#eta(#Lambda*)","", 'F' );
+        dataloader.AddVariable( "gamma_eta:=atanh(gamma_PZ/gamma_P)","#eta(#gamma)","", 'F' );
 
         dataloader.AddVariable( "pplus_IPCHI2_OWNPV",                 "#chi^{2}_{IP}(p^{+})",                       ""  ,  'F' );
         #dataloader.AddVariable( "Kminus_IPCHI2_OWNPV",                "#chi^{2}_{IP}(K^{-})",                       ""  ,  'F' );
         dataloader.AddVariable( "B_IPCHI2_OWNPV",                     "#chi^{2}_{IP}(#Lambda_{b})",                 ""  ,  'F' );
-        dataloader.AddVariable( "Lambda_1520_0_IPCHI2_OWNPV",         "#chi^{2}_{IP}(#Lambda(1520))",               "",    'F' );
+        dataloader.AddVariable( "Lambda_1520_0_IPCHI2_OWNPV",         "#chi^{2}_{IP}(#Lambda*)",               "",    'F' );
         
-        dataloader.AddVariable( "Lambda_1520_0_OWNPV_CHI2",           "#chi^{2}_{vertex}(#Lambda(1520))",           ""  ,  'F' );
+        dataloader.AddVariable( "Lambda_1520_0_OWNPV_CHI2",           "#chi^{2}_{vertex}(#Lambda*)",           ""  ,  'F' );
         dataloader.AddVariable( "B_OWNPV_CHI2",                       "#chi^{2}_{vertex}(#Lambda_{b})",             ""  ,  'F' );
-        dataloader.AddVariable( "B_BMassFit_chi2/B_BMassFit_nDOF",    "#chi^{2}_{DTF}/n_{dof}",                     ""  ,  'F' );
-        dataloader.AddVariable( "B_PVFit_chi2/B_PVFit_nDOF",          "#chi^{2}_{DTF}/n_{dof}",                     ""  ,  'F' );
+        #dataloader.AddVariable( "B_BMassFit_chi2/B_BMassFit_nDOF",    "#chi^{2}_{DTF}/n_{dof}",                     ""  ,  'F' );#BDT learned Mass check1
+#        dataloader.AddVariable( "B_PVFit_chi2/B_PVFit_nDOF",          "#chi^{2}_{DTF}/n_{dof}",                     ""  ,  'F' );#put it out because array
 
-        #dataloader.AddVariable( "B_DIRA_OWNPV",                       "DIRA(#Lambda_{b})",                          ""  ,  'F' );
-        #dataloader.AddVariable( "Lambda_1520_0_DIRA_OWNPV",           "DIRA(#Lambda(1520))",                        ""  ,  'F' );
-        #dataloader.AddVariable( "Lambda_1520_0_FDCHI2_OWNPV",         "FD #chi^{2}(#Lambda(1520))",               "",    'F' );
-        #dataloader.AddVariable( "B_FDCHI2_OWNPV",                     "#chi^{2}_{FD}(#Lambda_{b})",                 "",    'F' );
+        #dataloader.AddVariable( "B_DIRA_OWNPV",                       "DIRA(#Lambda_{b})",                          ""  ,  'F' ); #not used by BDT
+        #dataloader.AddVariable( "Lambda_1520_0_DIRA_OWNPV",           "DIRA(#Lambda*)",                        ""  ,  'F' ); #not used
+        #dataloader.AddVariable( "Lambda_1520_0_FDCHI2_OWNPV",         "FD #chi^{2}(#Lambda*)",               "",    'F' ); #not used
+        #dataloader.AddVariable( "B_FDCHI2_OWNPV",                     "#chi^{2}_{FD}(#Lambda_{b})",                 "",    'F' ); #not used
 
     
     # Add Spectator Variables: not used for Training but written in final TestTree
-    dataloader.AddSpectator( "B_M",                                   "M(#Lambda_{b})",                           "MeV");
-    dataloader.AddSpectator( "Lambda_1520_0_M",                       "M(#Lambda(1520))",                         "MeV");                    
+    #dataloader.AddSpectator( "B_M",                                   "M(#Lambda_{b})",                           "MeV");
+    #dataloader.AddSpectator( "Lambda_1520_0_M",                       "M(#Lambda*)",                         "MeV");                    
         
     # Read input data
     if gSystem.AccessPathName( sigfname ) != 0: print "Can not find %s" % sigfname
@@ -263,7 +263,7 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
     mycutSig = TCut("") #"pplus_ProbNNp>0.2 && Kminus_ProbNNk>0.2 && B_PT>4000 && Lambda_1520_0_PT>1500 && gamma_PT>3000 && pplus_PT>1000 && B_FDCHI2_OWNPV>100 && pplus_IPCHI2_OWNPV>50 && Kminus_IPCHI2_OWNPV>40")# B_BKGCAT==0 directly applied in root sample 
     #print(sigfname + str( mycutSig ) + treeNameSig)
 
-    mycutBkg = TCut("") #"pplus_ProbNNp>0.2 && Kminus_ProbNNk>0.2 && B_PT>4000 && Lambda_1520_0_PT>1500 && gamma_PT>3000 && pplus_PT>1000 && B_FDCHI2_OWNPV>100 && pplus_IPCHI2_OWNPV>50 && Kminus_IPCHI2_OWNPV>40 && B_M>6120")#(B_M>6120 || B_M<5120)" ) 
+    mycutBkg = TCut("B_M>6120") #"pplus_ProbNNp>0.2 && Kminus_ProbNNk>0.2 && B_PT>4000 && Lambda_1520_0_PT>1500 && gamma_PT>3000 && pplus_PT>1000 && B_FDCHI2_OWNPV>100 && pplus_IPCHI2_OWNPV>50 && Kminus_IPCHI2_OWNPV>40 && B_M>6120")#(B_M>6120 || B_M<5120)" ) 
     #print(bkgfname + str( mycutBkg ) + treeNameBkg)
 
     # Here, the relevant variables are copied over in new, slim trees that are
@@ -431,8 +431,8 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
     # Boosted Decision Trees
     if "BDTG" in mlist:
         factory.BookMethod( dataloader, TMVA.Types.kBDT, "BDTG",
-                            #"!H:!V:NTrees=300:BoostType=Grad:Shrinkage=0.11:UseBaggedGrad:GradBaggingFraction=0.73:SeparationType=GiniIndex:nCuts=20:MaxDepth=5" )#Settings3
-                            "!H:!V:NTrees=300:BoostType=Grad:Shrinkage=0.11:UseBaggedGrad:GradBaggingFraction=0.73:SeparationType=GiniIndex:nCuts=17:MaxDepth=4" )#AnaNote
+                            "!H:!V:NTrees=600:BoostType=Grad:Shrinkage=0.1:UseBaggedGrad:GradBaggingFraction=0.73:SeparationType=GiniIndex:nCuts=15:MaxDepth=2" )#Settings3
+                            #"!H:!V:NTrees=300:BoostType=Grad:Shrinkage=0.11:UseBaggedGrad:GradBaggingFraction=0.73:SeparationType=GiniIndex:nCuts=17:MaxDepth=4" )#AnaNote
                             #"!H:!V:NTrees=1000:BoostType=Grad:Shrinkage=0.30:UseBaggedGrad:GradBaggingFraction=0.6:SeparationType=GiniIndex:nCuts=20:NNodesMax=5" )#Old
 
 

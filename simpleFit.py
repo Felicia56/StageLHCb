@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # =============================================================================
 # @file   simpleFit.py
-# @author C. Marin Benito (carla.marin.benito@cern.ch)
-# @date   22.12.2014
+# @author Felicia Volle
+# @date   23.07.2019
 # =============================================================================
 """This script fits a simple pdf to a given dataset using RooFit."""
 
@@ -51,13 +51,13 @@ def simpleFit(tree, version, cuts, xmini, xmin, xmid, xmax): #mean, xmin = 6120,
     #___define variables and pdfs______________________________________________
  
     if xmini > 0:
-        B_M = RooRealVar("B_M","B_M", 3620, 7120)
+        B_M = RooRealVar("B_M","B_M", xmini, xmax)#, 3620, 7120)
         B_M.setRange("SignalRegion",xmin,xmid)
         B_M.setRange("FullRange", xmini, xmax)
         B_M.setRange("LeftSideBand", xmini, xmin)
         B_M.setRange("RightSideBand", xmid, xmax)
     else:
-        B_M = RooRealVar("B_M","B_M", xmin, 7120)
+        B_M = RooRealVar("B_M","B_M", xmin, xmax)
         B_M.setRange("SignalRegion",xmin,xmid)
         B_M.setRange("FullRange", xmin, xmax)
         B_M.setRange("OuterRange",xmid,xmax)

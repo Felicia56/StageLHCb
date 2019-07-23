@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 '''
-Project        : Plot Bmass
-Script name    : PlotBmass.py 
+Project        : Plot Correlation of <BDTG> and Mass Lb
+Script name    : PlotCorrBDTGBMass.py 
 Author         : Felicia Volle
 '''
 
@@ -18,7 +18,7 @@ from ROOT import gStyle,gROOT,TLegend,TPad,TCanvas,TH1F,TH2F,TFile,TDirectory,TC
 
 #________________________________SET VARIABLES________________________________
 
-comment = "all"
+comment = "Secure"
 
 #_____________________________DEFINITION OF FUNCTIONS________________________ 
 
@@ -30,10 +30,11 @@ def setupHistograms():
     return histograms
 B_M_list = [5120,5170,5220,5270,5320,5370,5420,5470,5520,5570,5620,5670,5720,5770,5820,5870,5920,5970,6020,6070,6120]#[3720,3920,4120,4320,4520,4720,4920,5120,5320,5520,5720,5920,6120,6320,6520,6720,6920,7120,7320]
 
-def GetAndDrawHistograms(noStack=True):
-    f = TFile("/sps/lhcb/volle/Data_all_BDTG.root")
+def DrawCorrelationWithBDTG(noStack=True):
+    
+    f = TFile("/sps/lhcb/volle/Data_BDTG_Secure.root")
     t = f.Get("DecayTree")
-    fM = TFile("/sps/lhcb/volle/MCsignal_all_BDTG.root")
+    fM = TFile("/sps/lhcb/volle/MCsignal_BDTG_Secure.root")#"all_BDTG.root")
     tM = fM.Get("DecayTree")
 
     x1 = []
@@ -105,6 +106,9 @@ def GetAndDrawHistograms(noStack=True):
     #gS.SetLineColor(4)
 
     gM = ROOT.TGraphErrors(n,xM,yM,exM,eyM)
+    gM.SetMinimum(0.1)
+    gM.SetMaximum(1.1)
+
     legende.AddEntry(gM, "MC", "lp")
     gM.SetMarkerStyle(20) 
     gM.SetMarkerColor(6)
@@ -136,5 +140,5 @@ def GetAndDrawHistograms(noStack=True):
 
 
 if __name__ == '__main__':
-    GetAndDrawHistograms(noStack=True)
+    DrawCorrelationWithBDTG(noStack=True)
     
