@@ -18,7 +18,7 @@ from ROOT import gStyle,gROOT,TLegend,TPad,TCanvas,TH1F,TH2F,TFile,TDirectory,TC
 
 
 TFileSweightName = "/users/LHCb/volle/Stage/sData.root"
-TFileDataName = "/sps/lhcb/volle/FitBMass/v2/SPlot_output.root"#TrigSel.root"
+TFileDataName = "/sps/lhcb/volle/FitBMass/v1_Try2/BDTG_BKGfile_0.92.root"#v2/SPlot_output.root"#TrigSel.root"
 SweightTreeName = "sTree"
 DataTreeName = "DecayTree"
 
@@ -34,7 +34,7 @@ def setupHistograms():
         ]
     return histograms
 
-def GetAndDrawHistograms(DataFileName,DataTreeName,SFileName,STreeName,noStack=True):
+def DrawSplotHistograms(DataFileName,DataTreeName,SFileName,STreeName,noStack=True):
     #fS = TFile(SFileName)
     #tS = fS.Get(STreeName)
     fData = TFile(DataFileName)
@@ -102,11 +102,11 @@ def GetAndDrawHistograms(DataFileName,DataTreeName,SFileName,STreeName,noStack=T
         my_Latex.DrawLatexNDC(0.13,0.85, "LHCb Data 2012")
         CanvasName.Update()
 
-        outDir = '/sps/lhcb/volle/FitBMass/v2'
+        outDir = '/sps/lhcb/volle/FitBMass/v1_Try2'
         if not os.path.isdir(outDir):
             os.makedirs(outDir)
-        CanvasName.SaveAs("{}/{}_both.pdf".format(outDir,histoListe[i][0]))
-        CanvasName.SaveAs("{}/{}_both.png".format(outDir,histoListe[i][0]))
+        CanvasName.SaveAs("{}/{}_both.pdf".format(outDir,histoListe[i][0]))#_both
+        CanvasName.SaveAs("{}/{}_both.png".format(outDir,histoListe[i][0]))#_both
         #CanvasName.SaveAs("{}/{}.root".format(outDir,histoListe[i][0]))
 
 
@@ -114,5 +114,5 @@ def GetAndDrawHistograms(DataFileName,DataTreeName,SFileName,STreeName,noStack=T
 
 
 if __name__ == '__main__':
-    GetAndDrawHistograms(TFileDataName,DataTreeName,TFileSweightName,SweightTreeName,noStack=True)
+    DrawSplotHistograms(TFileDataName,DataTreeName,TFileSweightName,SweightTreeName,noStack=True)
     

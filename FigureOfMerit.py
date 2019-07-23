@@ -23,9 +23,9 @@ from simpleFit import simpleFit
 
 #____________________________VARIABLE DEFINITION______________________________
 
-f = ROOT.TFile("/sps/lhcb/volle/Data_all_BDTG.root")#"full_BDTG.root")
+f = ROOT.TFile("/sps/lhcb/volle/Data_BDTG_Secure.root")#"full_BDTG.root")
 t = f.Get("DecayTree")
-fSig = ROOT.TFile("/sps/lhcb/volle/MCsignal_all_BDTG.root")#_2_BDTG.root")
+fSig = ROOT.TFile("/sps/lhcb/volle/MCsignal_BDTG_Secure.root")#_2_BDTG.root")
 tSig = fSig.Get("DecayTree")
 
 #ftot = ROOT.TFile("/data/lhcb/marin/lb2pkgamma/MC/2012/15102203/2hG-S21/radiative2hG_MC2012-Lb2L1520gamma_HighPt-15102203-Py8Sim09dReco14c_S21.root")
@@ -35,7 +35,7 @@ tSig = fSig.Get("DecayTree")
 Ntot = (508316+505855)/0.2329
 print "Ntot = {}".format(Ntot)
 
-BDTG_val_list2 = [ 0.5, 0.52, 0.54, 0.56, 0.58, 0.6, 0.62, 0.64, 0.66, 0.68, 0.7, 0.72, 0.74, 0.76, 0.78, 0.8, 0.82, 0.84, 0.86, 0.88, 0.90, 0.92, 0.94, 0.96,0.98]#vZOOM[-1,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]#[0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.38, 0.4, 0.42, 0.44, 0.46, 0.48, 0.5, 0.52, 0.54, 0.56, 0.58, 0.6, 0.62, 0.64, 0.66, 0.68, 0.7, 0.72, 0.74, 0.76, 0.78, 0.8, 0.82, 0.84, 0.86, 0.88, 0.90, 0.92, 0.94, 0.96,0.98]#v4
+BDTG_val_list2 = [-1,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]#[ 0.5, 0.52, 0.54, 0.56, 0.58, 0.6, 0.62, 0.64, 0.66, 0.68, 0.7, 0.72, 0.74, 0.76, 0.78, 0.8, 0.82, 0.84, 0.86, 0.88, 0.90, 0.92, 0.94, 0.96,0.98]#vZOOM[-1,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]#[0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.38, 0.4, 0.42, 0.44, 0.46, 0.48, 0.5, 0.52, 0.54, 0.56, 0.58, 0.6, 0.62, 0.64, 0.66, 0.68, 0.7, 0.72, 0.74, 0.76, 0.78, 0.8, 0.82, 0.84, 0.86, 0.88, 0.90, 0.92, 0.94, 0.96,0.98]#v4
 #[0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.90, 0.95]#v4
 BDTG_val_list = [-1,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
 #[x * 0.1 for x in range(-10,10)]
@@ -169,6 +169,13 @@ def DrawPunzi(Nbkg, NsigE):
         y1.append(y_val)
         ey1.append(y_val_err)
         b = b+1
+    print max(y1)
+    imax = 0
+    for i in range(len(BDTG_val_list2)):
+        if y1[i] == max(y1):
+            print "Maximum of Punzi is: {} +- {} at {}".format(y1[i],ey1[i],x1[i])
+            #print y1
+            imax = i
        
     xP = array('d',x1)
     yP = array('d',y1)
@@ -207,7 +214,7 @@ def DrawSignificance(Nbkg, NsigY):
         ey2.append(y_val_err2)
         b = b+1
     print max(y2)
-    imax = 10
+    imax = 0
     for i in range(len(BDTG_val_list2)):
         if y2[i] == max(y2):
             print "Maximum of Significance is: {} +- {} at {}".format(y2[i],ey2[i],x2[i])
@@ -298,12 +305,12 @@ if __name__ == '__main__':
     #parser.add_argument("file", action="store", type=str)
     #parser.add_argument("-t", "--tree", default="DecayTree", action="store", type=str)
     #(xmini)______FIT______(xmin)______SIGNAL______(xmid)_______FIT_______(xmax)
-    parser.add_argument("-m", "--xmini", default=4420., action="store", type=float)
+    parser.add_argument("-m", "--xmini", default=4820., action="store", type=float)#4420
     parser.add_argument("-n", "--xmin", default=5120., action="store", type=float)
     parser.add_argument("-d", "--xmid", default=6120., action="store", type=float)
-    parser.add_argument("-x", "--xmax", default=6620., action="store", type=float)
+    parser.add_argument("-x", "--xmax", default=6420., action="store", type=float)#6620
     #parser.add_argument("-c", "--cuts", default="", action="store", type=str)
-    parser.add_argument("-v", "--version", default="v5_all",action="store", type=str)
+    parser.add_argument("-v", "--version", default="v5_Secure_zoom",action="store", type=str)
     args = parser.parse_args()
 
     newDir = '/sps/lhcb/volle/FitResults/{}'.format(args.version)
