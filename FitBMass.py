@@ -148,7 +148,7 @@ def FitBMassSigAndBkg(tree, treeSig, version, cuts,meanV, xmini, xmin, xmid, xma
     c0.SaveAs("{}/MCfit_BDTG_cut_{}.png".format(newDir,b))
     #c0.SaveAs("{}/MCfit_BDTG_cut_{}.root".format(newDir,b)
 
-
+    #Set tails constant
     alphaL.setConstant(kTRUE)
     nL.setConstant(kTRUE)
 
