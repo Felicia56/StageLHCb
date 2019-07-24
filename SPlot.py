@@ -35,8 +35,6 @@ def setupHistograms():
     return histograms
 
 def DrawSplotHistograms(DataFileName,DataTreeName,SFileName,STreeName,noStack=True):
-    #fS = TFile(SFileName)
-    #tS = fS.Get(STreeName)
     fData = TFile(DataFileName)
     tData = fData.Get(DataTreeName)
 

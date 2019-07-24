@@ -87,7 +87,6 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
         sys.exit(1)
     treeNameSig = trees[0]
     treeNameBkg = trees[1]
-    #print trees
 
     # Print output file and directory
     outfname = "TMVA_%s_%s.root" %(channel, optname)

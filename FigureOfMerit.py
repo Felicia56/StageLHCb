@@ -70,7 +70,6 @@ def GetBackgroundYieldDict(t,version,xmini,xmin,xmid,xmax):
     if os.path.exists(FileName):
         ftxt = open(FileName,'r')
         Text = ftxt.read()
-        #print Text
         TextList = Text.split("];")
         #print TextList
         for s in range(len(TextList)-1):

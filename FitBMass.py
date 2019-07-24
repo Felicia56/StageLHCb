@@ -320,7 +320,7 @@ if __name__=="__main__":
     #meanVal = 5620
     BDTCut = "BDTG>=0.92"#0.72 #0.92
 
-    ds, model = FitBMassSigAndBkg(t, tSig, args.version,  BDTCut,args.mean, args.xmini, args.xmin, args.xmid, args.xmax) #args.mean, args.xmin, args.xmax)#ds,model,Plot,chi2
+    ds, model = FitBMassSigAndBkg(t, tSig, args.version,  BDTCut,args.mean, args.xmini, args.xmin, args.xmid, args.xmax) 
     
 
 #EOF
