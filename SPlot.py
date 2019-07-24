@@ -18,7 +18,7 @@ from ROOT import gStyle,gROOT,TLegend,TPad,TCanvas,TH1F,TH2F,TFile,TDirectory,TC
 
 
 TFileSweightName = "/users/LHCb/volle/Stage/sData.root"
-TFileDataName = "/sps/lhcb/volle/FitBMass/v1_Try2/BDTG_BKGfile_0.92.root"#v2/SPlot_output.root"#TrigSel.root"
+TFileDataName = "/sps/lhcb/volle/FitBMass/v1_Min5120/Dataset_0.92.root"#v1_Try2 #v2/SPlot_output.root"#TrigSel.root"
 SweightTreeName = "sTree"
 DataTreeName = "DecayTree"
 
@@ -28,7 +28,7 @@ DataTreeName = "DecayTree"
 
 def setupHistograms():
     histograms = [
-        ["B_M","M(#Lambda_{b})","Entries / {MeV}","B_M>>h(100,3600,7100)"],
+        ["B_M","M(#Lambda_{b})","Entries / {MeV}","B_M>>h(100,4820,6420)"],
         ["Lambda_1520_0_M","M(#Lambda^{*})","Entries / {MeV}","Lambda_1520_0_M>>h(100,1400,2600)"],
         ["Lambda_1520_0_cosThetaH","cos(#theta_{H,#Lambda^{*}})","Entries","Lambda_1520_0_cosThetaH>>h(100,-1,1)"]
         ]
@@ -62,7 +62,7 @@ def DrawSplotHistograms(DataFileName,DataTreeName,SFileName,STreeName,noStack=Tr
         #MaxMC = hist_MC.GetMaximum()
         #g.Add(hist_MC)
         
-        tData.Draw(histoListe[i][3])
+        tData.Draw(histoListe[i][3],"B_M>5300")
         hist_data = tData.GetHistogram().Clone("hist_data")
         hist_data.SetLineColor(5)
         hist_data.SetLineWidth(1)
@@ -102,7 +102,7 @@ def DrawSplotHistograms(DataFileName,DataTreeName,SFileName,STreeName,noStack=Tr
         my_Latex.DrawLatexNDC(0.13,0.85, "LHCb Data 2012")
         CanvasName.Update()
 
-        outDir = '/sps/lhcb/volle/FitBMass/v1_Try2'
+        outDir = '/sps/lhcb/volle/FitBMass/v1_Min5120'
         if not os.path.isdir(outDir):
             os.makedirs(outDir)
         CanvasName.SaveAs("{}/{}_both.pdf".format(outDir,histoListe[i][0]))#_both

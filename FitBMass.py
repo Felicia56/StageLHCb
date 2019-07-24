@@ -104,13 +104,18 @@ def FitBMassSigAndBkg(tree, treeSig, version, cuts,meanV, xmini, xmin, xmid, xma
     if not os.path.isdir(newDir):
         os.makedirs(newDir)
         
+    CUTS = cuts + " && B_M>{} && B_M<{}".format(args.xmini,args.xmax) 
 
-    fnew = ROOT.TFile("{}/BDTG_BKGfile_{}.root".format(newDir,b),"recreate")
-    tnew = tree.CopyTree(cuts)
+    fnew = ROOT.TFile("{}/Dataset_{}.root".format(newDir,b),"recreate")
+    tnew = tree.CopyTree(CUTS)
     fnew.Write()
     
     ds = RooDataSet("data", "dataset with x", tnew, RooArgSet(B_M))
 
+    #fds = ROOT.TFile("{}/Dataset.root".format(newDir,b),"recreate")
+    #tds = ds.store().tree()
+    #fds.Write()
+    
     fnewMC = ROOT.TFile("{}/BDTG_MCfile_{}.root".format(newDir,b),"recreate")
     tnewMC = treeSig.CopyTree(cuts)
     fnewMC.Write()
@@ -135,6 +140,9 @@ def FitBMassSigAndBkg(tree, treeSig, version, cuts,meanV, xmini, xmin, xmid, xma
     SigModel.paramOn(massFrameMC, RooFit.Layout(0.59,0.97,0.92), RooFit.AutoPrecision(1) ) #RooFit.Parameters( RooArgSet(tau) ) ) #RooFit.Label("Fit results")
 
     massFrameMC.Draw()
+    massFrameMC.GetXaxis().SetTitle("M(#Lambda_{b})")
+    
+    c0.Update()
 
     c0.SaveAs("{}/MCfit_BDTG_cut_{}.pdf".format(newDir,b))
     c0.SaveAs("{}/MCfit_BDTG_cut_{}.png".format(newDir,b))
@@ -190,6 +198,10 @@ def FitBMassSigAndBkg(tree, treeSig, version, cuts,meanV, xmini, xmin, xmid, xma
 
     massFrame.Draw()
 
+    massFrame.GetXaxis().SetTitle("M(#Lambda_{b})")
+    
+    c1.Update()
+
     c1.SaveAs("{}/BDTG_cut_{}.pdf".format(newDir,b))
     c1.SaveAs("{}/BDTG_cut_{}.png".format(newDir,b))
     #c1.SaveAs("{}/BDTG_cut_{}.root".format(newDir,b)
@@ -242,6 +254,11 @@ def FitBMassSigAndBkg(tree, treeSig, version, cuts,meanV, xmini, xmin, xmid, xma
     #_____splot_____________________________________________________________
 
     print "Starting the splot analysis"
+    
+    mean.setConstant(kTRUE)
+    sigma.setConstant(kTRUE)
+    tau.setConstant(kTRUE)
+
     sData = ROOT.RooStats.SPlot("sData","sData", ds, model, coeff)
     print "Finished to create sData"
     
@@ -254,6 +271,11 @@ def FitBMassSigAndBkg(tree, treeSig, version, cuts,meanV, xmini, xmin, xmid, xma
     
     sTree = ROOT.RooStats.GetAsTTree('sTree','sTree',sData.GetSDataSet())
     sTree.Print()
+
+    #Check sWeights
+    print "Check SWeights:"
+    print "Nsig = {} and from sWeights = {}".format(nsig.getVal(),sData.GetYieldFromSWeight("nsig"))
+    print "Nbkg = {} and from sWeights = {}".format(nbkg.getVal(),sData.GetYieldFromSWeight("nbkg"))
 
     #Go back to default storage type
     ROOT.RooDataSet.setDefaultStorageType(ROOT.RooAbsData.Vector)
@@ -296,7 +318,8 @@ if __name__=="__main__":
     #t = f.Get("DecayTree")
 
     #meanVal = 5620
-    BDTCut = "BDTG>=0.92" #0.72 #0.92
+    BDTCut = "BDTG>=0.92"#0.72 #0.92
+
     ds, model = FitBMassSigAndBkg(t, tSig, args.version,  BDTCut,args.mean, args.xmini, args.xmin, args.xmid, args.xmax) #args.mean, args.xmin, args.xmax)#ds,model,Plot,chi2
     
 

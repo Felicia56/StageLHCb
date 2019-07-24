@@ -183,9 +183,9 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
         dataloader.AddVariable( "Lambda_1520_0_PT",                   "P_{T}(#Lambda*)",                     "MeV", 'F' );
         dataloader.AddVariable( "B_PT",                               "P_{T}(#Lambda_{b})",                       "MeV", 'F' ); 
 
-        dataloader.AddVariable( "beta:=(-gamma_P+Kminus_P+pplus_P)/(gamma_P+Kminus_P+pplus_P)","#beta",             "", 'F' );#BDT learned Mass check1
+        dataloader.AddVariable( "beta:=(-gamma_P+Kminus_P+pplus_P)/(gamma_P+Kminus_P+pplus_P)","#beta",             "", 'F' );#ok
         #dataloader.AddVariable( "MomCons1:=-B_P+gamma_P+Lambda_1520_0_P","P_{tot,1}",                               "MeV", 'F' );#BDT learned Mass check1
-        dataloader.AddVariable( "MomCons2:=-Lambda_1520_0_P+Kminus_P+pplus_P","P_{tot,2}",                          "MeV", 'F' );#BDT learned Mass check1
+        dataloader.AddVariable( "MomCons2:=-Lambda_1520_0_P+Kminus_P+pplus_P","P_{tot,2}",                          "MeV", 'F' );#ok
 
         #dataloader.AddVariable( "Sum_Kminus_p_eta:=atanh(pplus_PZ/pplus_P)+atanh(Kminus_PZ/Kminus_P)","#eta(K^{-})+#eta(p^{+})","", 'F' );#99correlationL_eta
         dataloader.AddVariable( "Diff_Kminus_p_eta:=atanh(Kminus_PZ/Kminus_P)-atanh(pplus_PZ/pplus_P)","#eta(K^{-})-#eta(p^{+})","", 'F' );
@@ -200,7 +200,7 @@ def TMVAClassification(methods, sigfname, bkgfname, optname, channel, trees, ver
         dataloader.AddVariable( "Lambda_1520_0_OWNPV_CHI2",           "#chi^{2}_{vertex}(#Lambda*)",           ""  ,  'F' );
         dataloader.AddVariable( "B_OWNPV_CHI2",                       "#chi^{2}_{vertex}(#Lambda_{b})",             ""  ,  'F' );
         #dataloader.AddVariable( "B_BMassFit_chi2/B_BMassFit_nDOF",    "#chi^{2}_{DTF}/n_{dof}",                     ""  ,  'F' );#BDT learned Mass check1
-#        dataloader.AddVariable( "B_PVFit_chi2/B_PVFit_nDOF",          "#chi^{2}_{DTF}/n_{dof}",                     ""  ,  'F' );#put it out because array
+        #dataloader.AddVariable( "B_PVFit_chi2/B_PVFit_nDOF",          "#chi^{2}_{DTF}/n_{dof}",                     ""  ,  'F' );#put it out because array
 
         #dataloader.AddVariable( "B_DIRA_OWNPV",                       "DIRA(#Lambda_{b})",                          ""  ,  'F' ); #not used by BDT
         #dataloader.AddVariable( "Lambda_1520_0_DIRA_OWNPV",           "DIRA(#Lambda*)",                        ""  ,  'F' ); #not used
